@@ -1,13 +1,14 @@
-// app/register/page.js
 'use client';
 
 import { useState } from 'react';
 
 export default function Register() {
-  const [name, setName] = useState('');
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,16 +18,22 @@ export default function Register() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ nom, prenom, email, password }),
     });
 
     const data = await response.json();
-
     if (response.ok) {
       setMessage(data.message);
+      setMessageType('success'); // Définit le type de message à succès
     } else {
       setMessage(data.message);
+      setMessageType('error'); // Définit le type de message à erreur
     }
+
+    setTimeout(() => {
+      setMessage('');
+      setMessageType('');
+    }, 1500);
   };
 
   return (
@@ -45,20 +52,46 @@ export default function Register() {
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {message && <p style={{textAlign: 'center'}} className="text-red-500 mb-4">{message}</p>}
+          {message && (
+              <p
+                style={{ textAlign: 'center' }}
+                className={`mb-4 ${
+                  messageType === 'success' ? 'text-green-500' : 'text-red-500'
+                }`}
+              >
+                {message}
+              </p>
+            )}
             
             <div>
-              <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                Nom Complete
+              <label htmlFor="nom" className="block text-sm font-medium leading-6 text-gray-900">
+                Nom
               </label>
               <div className="mt-2">
                 <input
-                  id="name"
+                  id="nom"
                   type='text'
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={nom}
+                  onChange={(e) => setNom(e.target.value)}
                   required
-                  placeholder="   Name"
+                  placeholder="   Nom"
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="prenom" className="block text-sm font-medium leading-6 text-gray-900">
+                Prénom
+              </label>
+              <div className="mt-2">
+                <input
+                  id="prenom"
+                  type='text'
+                  value={prenom}
+                  onChange={(e) => setPrenom(e.target.value)}
+                  required
+                  placeholder="   Prénom"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>

@@ -7,9 +7,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export async function POST(request) {
-  const { name, email, password } = await request.json();
+  const { nom, prenom, email, password } = await request.json();
 
-  if (!name || !email || !password) {
+  if (!nom || !prenom || !email || !password) {
     return NextResponse.json({ message: 'All fields are required.' }, { status: 400 });
   }
 
@@ -20,7 +20,8 @@ export async function POST(request) {
     // Save the new user in the database
     await prisma.user.create({
       data: {
-        name,
+        nom,
+        prenom,
         email,
         password: hashedPassword,
         role: 'SUPER_ADMIN', // Assign the SUPER_ADMIN role
