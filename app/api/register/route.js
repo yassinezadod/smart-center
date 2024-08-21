@@ -1,5 +1,3 @@
-// app/api/register/route.js
-
 import { NextResponse } from 'next/server';
 import { hashPassword } from '../../../lib/auth';
 import { PrismaClient } from '@prisma/client';
@@ -13,10 +11,19 @@ export async function POST(request) {
     return NextResponse.json({ message: 'All fields are required.' }, { status: 400 });
   }
 
-  // Hash the password
-  const hashedPassword = await hashPassword(password);
-
   try {
+    // Check if the email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json({ message: 'Email already in use.' }, { status: 400 });
+    }
+
+    // Hash the password
+    const hashedPassword = await hashPassword(password);
+
     // Save the new user in the database
     await prisma.user.create({
       data: {

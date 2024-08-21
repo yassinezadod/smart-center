@@ -22,6 +22,9 @@ model User {
   role      Role     @default(ADMIN)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  classes   Class[]  @relation("UserClasses")
 }
 
 enum Role {
@@ -29,3 +32,51 @@ enum Role {
   ADMIN
 }
 
+model Student {
+  id            Int      @id @default(autoincrement())
+  nom           String
+  prenom        String
+  birthDate     DateTime
+  classId       Int
+  inscription   String
+  telephone     String
+  ecoleOrigine  String
+  acteNaissance Boolean
+  picture       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  class         Class    @relation(fields: [classId], references: [id])
+  payments      Payment[]
+}
+
+model Class {
+  id        Int       @id @default(autoincrement())
+  niveau    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  students  Student[]
+  users     User[]    @relation("UserClasses")
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  amount      Float
+  paymentDate DateTime
+  period      String
+  status      PaymentStatus
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  student     Student  @relation(fields: [studentId], references: [id])
+}
+
+enum PaymentStatus {
+  PAID
+  UNPAID
+}
