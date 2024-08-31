@@ -1,39 +1,34 @@
 'use client';
 
 import { useState } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function Register() {
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('SUPER_ADMIN');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ nom, prenom, email, password }),
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      setMessage(data.message);
-      setMessageType('success'); // Définit le type de message à succès
-    } else {
-      setMessage(data.message);
-      setMessageType('error'); // Définit le type de message à erreur
+    try {
+      await axios.post('/api/auth/register', { nom, prenom, email, password, role });
+      setMessage('Registration successful!');
+      setMessageType('success');
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+    } catch (error) {
+      console.error('Registration failed', error);
+      setMessage('Registration failed. Please try again.');
+      setMessageType('error');
     }
-
-    setTimeout(() => {
-      setMessage('');
-      setMessageType('');
-    }, 1500);
   };
 
   return (
@@ -46,13 +41,13 @@ export default function Register() {
             className="mx-auto h-40 w-auto"
           />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Register a Super Admin Account
+            Register an Account
           </h2>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
-          {message && (
+            {message && (
               <p
                 style={{ textAlign: 'center' }}
                 className={`mb-4 ${
@@ -62,7 +57,7 @@ export default function Register() {
                 {message}
               </p>
             )}
-            
+
             <div>
               <label htmlFor="nom" className="block text-sm font-medium leading-6 text-gray-900">
                 Nom
@@ -70,7 +65,7 @@ export default function Register() {
               <div className="mt-2">
                 <input
                   id="nom"
-                  type='text'
+                  type="text"
                   value={nom}
                   onChange={(e) => setNom(e.target.value)}
                   required
@@ -87,7 +82,7 @@ export default function Register() {
               <div className="mt-2">
                 <input
                   id="prenom"
-                  type='text'
+                  type="text"
                   value={prenom}
                   onChange={(e) => setPrenom(e.target.value)}
                   required
@@ -104,7 +99,7 @@ export default function Register() {
               <div className="mt-2">
                 <input
                   id="email"
-                  type='email'
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -121,13 +116,30 @@ export default function Register() {
               <div className="mt-2">
                 <input
                   id="password"
-                  type='password'
+                  type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="    Password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium leading-6 text-gray-900">
+                Role
+              </label>
+              <div className="mt-2">
+                <select
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                >
+                  <option value="ADMIN">Admin</option>
+                  <option value="SUPER_ADMIN">Super Admin</option>
+                </select>
               </div>
             </div>
 

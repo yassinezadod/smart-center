@@ -5,9 +5,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export async function POST(request) {
-  const { nom, prenom, email, password } = await request.json();
+  const { nom, prenom, email, password, role } = await request.json();
 
-  if (!nom || !prenom || !email || !password) {
+  if (!nom || !prenom || !email || !password || !role) {
     return NextResponse.json({ message: 'All fields are required.' }, { status: 400 });
   }
 
@@ -31,12 +31,12 @@ export async function POST(request) {
         prenom,
         email,
         password: hashedPassword,
-        role: 'SUPER_ADMIN', // Assign the SUPER_ADMIN role
+        role,
       },
     });
-    return NextResponse.json({ message: 'Super Admin successfully created!' }, { status: 201 });
+    return NextResponse.json({ message: 'User successfully created!' }, { status: 201 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: 'Error creating Super Admin.' }, { status: 500 });
+    return NextResponse.json({ message: 'Error creating user.' }, { status: 500 });
   }
 }
