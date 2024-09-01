@@ -1,16 +1,16 @@
 "use client";
 
-import { FaUser, FaBell, FaSignOutAlt } from 'react-icons/fa';
-import Link from 'next/link';
-import { useState } from 'react';
+import { FaUser, FaBell, FaSignOutAlt } from "react-icons/fa";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function NavBar() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-800 text-white flex items-center justify-between px-6 py-3">
-      <div className="text-2xl font-semibold">Dashboard</div>
+    <nav className="bg-sky-600 text-white flex items-center justify-between px-6 py-3">
+      <div className="text-2xl font-semibold">Smart Centre </div>
       <div className="flex items-center space-x-4">
         {/* Notifications */}
         <div className="relative">

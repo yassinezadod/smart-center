@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
+import NavBar from "../components/NavBar";
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState([]);
@@ -86,9 +87,11 @@ export default function ClassesPage() {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
+      <div className="flex-1 flex flex-col">
+      <NavBar />
       <div className="flex-1 p-6 overflow-auto">
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold mb-4 text-gray-900">Class Management</h1>
+          <h1 className="text-3xl font-bold mb-4 text-gray-900">Gestion des classes</h1>
           <button
             onClick={() => {
               setSelectedClass(null);
@@ -203,6 +206,8 @@ export default function ClassesPage() {
           </div>
         </div>
       </div>
+      </div>
+
     </div>
   );
 }
