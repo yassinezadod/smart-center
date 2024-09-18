@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { Layout, Card, Typography, Spin, Alert } from "antd";
+import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,24 +13,25 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
 import Sidebar from "../components/Sidebar";
 import NavBar from "../components/NavBar";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+
+const { Content } = Layout;
+const { Title: AntTitle } = Typography;
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userCount, setUserCount] = useState(0); // Nombre d'utilisateurs
+  const [classesCount, setClassesCount] = useState(0); // Nombre de classes
+  const [studentCount, setStudentCount] = useState(0); // Nombre d'étudiants
+  const [classData, setClassData] = useState([]); // Données des classes avec le nombre d'étudiants
+  const [genderData, setGenderData] = useState({}); 
   const router = useRouter();
 
   useEffect(() => {
@@ -52,91 +55,193 @@ export default function Dashboard() {
     } else {
       router.push("/");
     }
-  }, [router]);
 
-  const handleLogout = async () => {
-    try {
-      await axios.post("/api/logout");
-    } catch (error) {
-      console.error("Error logging out", error);
-      setError("Error logging out");
-    } finally {
-      localStorage.removeItem("token");
-      router.push("/");
-    }
-  };
+    // Récupérer le nombre d'utilisateurs
+    axios.get("/api/getUser")
+      .then((response) => {
+        setUserCount(response.data.length); // Met à jour le nombre d'utilisateurs
+      })
+      .catch((error) => {
+        console.error("Error fetching user count", error);
+        setError("Error fetching user count");
+      });
+
+    // Récupérer le nombre de classes
+    axios.get("/api/classes/getclasses")
+      .then((response) => {
+        setClassesCount(response.data.length); // Met à jour le nombre de classes
+      })
+      .catch((error) => {
+        console.error("Error fetching classes count", error);
+        setError("Error fetching classes count");
+      });
+
+    // Récupérer le nombre d'étudiants
+    axios.get("/api/student/getStudent")
+      .then((response) => {
+        setStudentCount(response.data.length); // Met à jour le nombre d'étudiants
+
+        // Traitement des données de genre
+        const genderCounts = response.data.reduce((counts, student) => {
+          counts[student.genre] = (counts[student.genre] || 0) + 1;
+          return counts;
+        }, {});
+        setGenderData(genderCounts); // Met à jour les données des genres
+      })
+      .catch((error) => {
+        console.error("Error fetching student count", error);
+        setError("Error fetching student count");
+      });
+
+    // Récupérer les données des classes avec le nombre d'étudiants
+    axios.get("/api/classes/getClassesWithStudentCount")
+      .then((response) => {
+        setClassData(response.data); // Met à jour les données des classes
+      })
+      .catch((error) => {
+        console.error("Error fetching class data", error);
+        setError("Error fetching class data");
+      });
+
+  }, [router]);
 
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen">
-        Loading...
+        <Spin size="large" />
       </div>
     );
   if (error)
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
-        {error}
+      <div className="flex justify-center items-center h-screen">
+        <Alert message={error} type="error" showIcon />
       </div>
     );
   if (!user)
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
-        Unauthorized
+      <div className="flex justify-center items-center h-screen">
+        <Alert message="Unauthorized" type="error" showIcon />
       </div>
     );
 
   const cardData = [
-    { title: "Utilisateurs", count: 12 },
-    { title: "Classes", count: 15 },
-    { title: "Étudiants", count: 50 },
+    { title: "Utilisateurs", count: userCount },
+    { title: "Classes", count: classesCount },
+    { title: "Étudiants", count: studentCount },
     { title: "Paiements", count: 100 },
   ];
 
+  const maxStudentCount = Math.max(...classData.map(cls => cls.studentCount), 0);
   const chartData = {
-    labels: ["Utilisateurs", "Classes", "Étudiants", "Paiements"],
+    responsive: true,
+    maintainAspectRatio: false,
+    labels: classData.map(cls => cls.niveau), // Les labels sont les noms des classes
     datasets: [
       {
-        label: "Nombre",
-        data: [12, 15, 50, 30],
-        backgroundColor: ["rgba(75, 192, 192, 0.6)"],
-        borderColor: ["rgba(75, 192, 192, 1)"],
+        label: "Nombre d'étudiants",
+        data: classData.map(cls => cls.studentCount), // Les données sont les nombres d'étudiants
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+  const totalGenderCount = Object.values(genderData).reduce((sum, count) => sum + count, 0);
+  const pieChartData = {
+    labels: Object.keys(genderData),
+    datasets: [
+      {
+        label: "Répartition des Genres",
+        data: Object.keys(genderData).map(gender => (genderData[gender] / totalGenderCount * 100).toFixed(2)), // Pourcentage
+        backgroundColor: ["blue", "red"],
+        borderColor: ["rgba(75, 192, 192, 1)", "rgba(153, 102, 255, 1)"],
         borderWidth: 1,
       },
     ],
   };
 
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += context.parsed.y.toFixed(0); // Affiche le nombre sans décimales
+            }
+            return label;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        ticks: {
+          callback: function(value) {
+            return Number.isInteger(value) ? value.toString() : ''; // Affiche uniquement les entiers
+          }
+        },
+        beginAtZero: true, // Assure que l'axe commence à 0
+        suggestedMax: maxStudentCount + 1 // Ajuste la valeur maximale affichée
+      }
+    }
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed !== null) {
+              label += context.parsed.toFixed(2) + '%'; // Affiche le pourcentage
+            }
+            return label;
+          }
+        }
+      }
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <Layout style={{ minHeight: "100vh" }}>
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <Layout style={{ marginLeft: 156 }}>
         <NavBar />
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold mb-4 text-gray-900">
-              Bienvenue Dashboard!
-            </h1>
-            <h2 className="text-2xl mb-2 text-gray-700">
-              Bienvenue, {user.nom} {user.prenom}
-            </h2>
-            <p className="text-lg text-gray-600">Rôle: {user.role}</p>
+        <Content style={{ padding: '24px', minHeight: 'calc(100vh - 64px)' }}>
+          <div className="site-layout-content">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
               {cardData.map((card, index) => (
-                <div key={index} className="bg-white shadow-md rounded-lg p-4">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    {card.title}
-                  </h3>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {card.count}
-                  </p>
-                </div>
+                <Card key={index} title={card.title} style={{ width: '92%', margin:"20px", textAlign: "center" }}>
+                  <p className="text-2xl md:text-3xl font-bold">{card.count}</p>
+                </Card>
               ))}
             </div>
-            <div className="mt-8">
-              <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+            <div className="flex flex-col gap-4 mt-8 md:flex-row">
+              <div className="p-4 bg-white rounded-lg shadow-md" style={{ width: '700px', maxWidth: '100%' }}>
+                <Bar data={chartData} options={chartOptions} />
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-md" style={{ width: '350px', maxWidth: '100%' }}>
+                <Pie data={pieChartData} options={pieChartOptions} />
+              </div>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 }

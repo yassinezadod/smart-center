@@ -1,15 +1,30 @@
 -- CreateTable
+CREATE TABLE `User` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nom` VARCHAR(191) NULL,
+    `prenom` VARCHAR(191) NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `role` ENUM('SUPER_ADMIN', 'ADMIN') NOT NULL DEFAULT 'ADMIN',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `User_email_key`(`email`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Student` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `nom` VARCHAR(191) NOT NULL,
     `prenom` VARCHAR(191) NOT NULL,
     `birthDate` DATETIME(3) NOT NULL,
+    `genre` VARCHAR(191) NOT NULL,
     `classId` INTEGER NOT NULL,
     `inscription` VARCHAR(191) NOT NULL,
     `telephone` VARCHAR(191) NOT NULL,
     `ecoleOrigine` VARCHAR(191) NOT NULL,
-    `acteNaissance` BOOLEAN NOT NULL,
-    `picture` VARCHAR(191) NOT NULL,
+    `picture` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -32,21 +47,18 @@ CREATE TABLE `Payment` (
     `studentId` INTEGER NOT NULL,
     `amount` DOUBLE NOT NULL,
     `paymentDate` DATETIME(3) NOT NULL,
-    `period` VARCHAR(191) NOT NULL,
-    `status` ENUM('PAID', 'UNPAID') NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `septembre` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `octobre` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `novembre` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `decembre` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `janvier` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `fevrier` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `mars` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `avril` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `mai` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `juin` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
 
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `_UserClasses` (
-    `A` INTEGER NOT NULL,
-    `B` INTEGER NOT NULL,
-
-    UNIQUE INDEX `_UserClasses_AB_unique`(`A`, `B`),
-    INDEX `_UserClasses_B_index`(`B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
@@ -54,9 +66,3 @@ ALTER TABLE `Student` ADD CONSTRAINT `Student_classId_fkey` FOREIGN KEY (`classI
 
 -- AddForeignKey
 ALTER TABLE `Payment` ADD CONSTRAINT `Payment_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_UserClasses` ADD CONSTRAINT `_UserClasses_A_fkey` FOREIGN KEY (`A`) REFERENCES `Class`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_UserClasses` ADD CONSTRAINT `_UserClasses_B_fkey` FOREIGN KEY (`B`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaTrash, FaEdit } from 'react-icons/fa';
+import { Layout} from "antd";
 import Sidebar from "../components/Sidebar";
 import NavBar from "../components/NavBar";
+import { FaTimes } from 'react-icons/fa';
+
+
+const { Content } = Layout;
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -103,10 +108,12 @@ export default function UsersPage() {
   );
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
+    <Layout style={{ minHeight: "100vh" }}>
+<Sidebar />
+      <Layout style={{ marginLeft: 156 }}>
         <NavBar />
+        <Content style={{ padding: '24px', minHeight: 'calc(100vh - 64px)' }}>
+   
         <div className="flex-1 p-6 overflow-auto">
           <div className="container mx-auto">
             <h1 className="text-3xl font-bold mb-4 text-gray-900">
@@ -119,115 +126,102 @@ export default function UsersPage() {
               }}
               className="bg-blue-600 text-white px-4 py-2 rounded mb-4 hover:bg-blue-700"
             >
-              Add User
+              Ajouter un utilisateur
             </button>
-            {/* Form Popup */}
             {showPopup && (
-              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-                <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-auto">
-                  <h2 className="text-xl font-bold mb-4">
-                    {selectedUser ? "Update User" : "Add New User"}
-                  </h2>
-                  <form
-                    onSubmit={selectedUser ? handleUpdateUser : handleAddUser}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Nom"
-                      value={selectedUser ? selectedUser.nom : newUser.nom}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (selectedUser) {
-                          setSelectedUser({ ...selectedUser, nom: value });
-                        } else {
-                          setNewUser({ ...newUser, nom: value });
-                        }
-                      }}
-                      className="border border-gray-300 p-2 mb-2 w-full rounded"
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Prenom"
-                      value={
-                        selectedUser ? selectedUser.prenom : newUser.prenom
-                      }
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (selectedUser) {
-                          setSelectedUser({ ...selectedUser, prenom: value });
-                        } else {
-                          setNewUser({ ...newUser, prenom: value });
-                        }
-                      }}
-                      className="border border-gray-300 p-2 mb-2 w-full rounded"
-                      required
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      value={selectedUser ? selectedUser.email : newUser.email}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (selectedUser) {
-                          setSelectedUser({ ...selectedUser, email: value });
-                        } else {
-                          setNewUser({ ...newUser, email: value });
-                        }
-                      }}
-                      className="border border-gray-300 p-2 mb-2 w-full rounded"
-                      required
-                    />
-                    <div className="relative mb-4">
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+                  <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-auto relative">
+                    <button
+                      onClick={() => setShowPopup(false)}
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                    >
+                      <FaTimes size={20} />
+                    </button>
+                    <h2 className="text-xl font-bold mb-4">
+                      {selectedUser ? "Modifier un utilisateur" : "Ajouter un utilisateur"}
+                    </h2>
+                    <form onSubmit={selectedUser ? handleUpdateUser : handleAddUser}>
                       <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password"
-                        value={
-                          selectedUser
-                            ? selectedUser.password
-                            : newUser.password
-                        }
+                        type="text"
+                        placeholder="Nom"
+                        value={selectedUser ? selectedUser.nom : newUser.nom}
                         onChange={(e) => {
                           const value = e.target.value;
                           if (selectedUser) {
-                            setSelectedUser({
-                              ...selectedUser,
-                              password: value,
-                            });
+                            setSelectedUser({ ...selectedUser, nom: value });
                           } else {
-                            setNewUser({ ...newUser, password: value });
+                            setNewUser({ ...newUser, nom: value });
                           }
                         }}
-                        className="border border-gray-300 p-2 w-full rounded"
+                        className="border border-gray-300 p-2 mb-2 w-full rounded"
                         required
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 flex items-center px-2"
-                      >
-                        {showPassword ? <FaEyeSlash /> : <FaEye />}
-                      </button>
-                    </div>
-                    <div className="flex justify-between">
-                      <button
-                        type="submit"
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                      >
-                        {selectedUser ? "Update User" : "Add User"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowPopup(false)}
-                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </form>
+                      <input
+                        type="text"
+                        placeholder="Prenom"
+                        value={selectedUser ? selectedUser.prenom : newUser.prenom}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (selectedUser) {
+                            setSelectedUser({ ...selectedUser, prenom: value });
+                          } else {
+                            setNewUser({ ...newUser, prenom: value });
+                          }
+                        }}
+                        className="border border-gray-300 p-2 mb-2 w-full rounded"
+                        required
+                      />
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        value={selectedUser ? selectedUser.email : newUser.email}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (selectedUser) {
+                            setSelectedUser({ ...selectedUser, email: value });
+                          } else {
+                            setNewUser({ ...newUser, email: value });
+                          }
+                        }}
+                        className="border border-gray-300 p-2 mb-2 w-full rounded"
+                        required
+                      />
+                      <div className="relative mb-4">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          value={selectedUser ? selectedUser.password : newUser.password}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (selectedUser) {
+                              setSelectedUser({ ...selectedUser, password: value });
+                            } else {
+                              setNewUser({ ...newUser, password: value });
+                            }
+                          }}
+                          className="border border-gray-300 p-2 w-full rounded"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 flex items-center px-2"
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                      <div className="flex justify-between">
+                        <button
+                          type="submit"
+                          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        >
+                          {selectedUser ? "Modifier un utilisateur" : "Ajouter un utilisateur"}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
             {/* User Table */}
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -267,13 +261,13 @@ export default function UsersPage() {
                           }}
                           className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 hover:bg-yellow-600"
                         >
-                          Edit
+                          <FaEdit />
                         </button>
                         <button
                           onClick={() => handleDeleteUser(user.email)}
                           className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                         >
-                          Delete
+                          <FaTrash />
                         </button>
                       </td>
                     </tr>
@@ -317,7 +311,9 @@ export default function UsersPage() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+
+       </Content>
+       </Layout>
+        </Layout>
   );
 }

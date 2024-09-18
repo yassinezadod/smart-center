@@ -1,21 +1,23 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import Link from "next/link";
 import {
+  FaUsers,
   FaUser,
   FaTachometerAlt,
   FaChalkboard,
   FaGraduationCap,
   FaMoneyBillWave,
-  FaBars,
-  FaTimes,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 export default function Sidebar() {
   const router = useRouter();
   const [user, setUser] = useState(null);
-  const [isOpen, setIsOpen] = useState(true);
+  const [loading, setLoading] = useState(true); // Ajout de l'état de chargement
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -25,50 +27,58 @@ export default function Sidebar() {
         .post("/api/auth/verify-token", { token })
         .then((response) => {
           setUser(response.data.user);
+          setLoading(false); // Fin du chargement une fois l'utilisateur récupéré
         })
         .catch((error) => {
           console.error("Invalid token or error verifying token", error);
           localStorage.removeItem("token");
           router.push("/");
+          setLoading(false); // Fin du chargement même en cas d'erreur
         });
     } else {
       router.push("/");
+      setLoading(false); // Fin du chargement si pas de token
     }
   }, [router]);
 
-  if (!user) return null;
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout");
+    } catch (error) {
+      console.error("Error logging out", error);
+    } finally {
+      localStorage.removeItem("token");
+      router.push("/");
+    }
+  };
 
   return (
     <div className="flex">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 fixed top-4 left-4 z-50 bg-sky-800 text-white rounded-full"
-      >
-        {isOpen ? <FaTimes /> : <FaBars />}
-      </button>
-
-      <aside
-        className={`bg-sky-600 h-screen text-white p-4 transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <h2 className="text-2xl font-bold mb-4">. </h2>
+      <aside className="bg-sky-600 h-screen text-white p-4 fixed top-0 left-0">
+        <div className="flex items-center mb-6">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSV-zBcBp7RunZYMDrtEFexGgjDHkVAieXc1Q&s"
+            alt="Logo"
+            className="w-20 h-20 object-cover rounded-full"
+            style={{ marginLeft: "0.5cm" }}
+          />
+        </div>
         <ul>
-          <li className="mb-2">
+          <li className="mb-4">
             <Link
               href="/dashboard"
-              className="hover:bg-gray-700 p-2 block rounded flex items-center"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
             >
               <FaTachometerAlt className="text-xl mr-2" />
               <span>Dashboard</span>
             </Link>
           </li>
 
-          {user.role === "SUPER_ADMIN" && (
-            <li className="mb-2">
+          {!loading && user?.role === "SUPER_ADMIN" && ( // Afficher ce lien seulement après le chargement
+            <li className="mb-4">
               <Link
                 href="/users"
-                className="hover:bg-gray-700 p-2 block rounded flex items-center"
+                className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
               >
                 <FaUser className="text-xl mr-2" />
                 <span>Utilisateurs</span>
@@ -76,51 +86,53 @@ export default function Sidebar() {
             </li>
           )}
 
-          <li className="mb-2">
+          <li className="mb-4">
             <Link
               href="/classes"
-              className="hover:bg-gray-700 p-2 block rounded flex items-center"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
             >
               <FaChalkboard className="text-xl mr-2" />
               <span>Classes</span>
             </Link>
           </li>
 
-          <li className="mb-2">
+          <li className="mb-4">
             <Link
-              href="/etudiants"
-              className="hover:bg-gray-700 p-2 block rounded flex items-center"
+              href="/eleve"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
             >
               <FaGraduationCap className="text-xl mr-2" />
-              <span>Etudiants</span>
+              <span>Eleve</span>
             </Link>
           </li>
 
-          <li className="mb-2">
+          <li className="mb-4">
+            <Link
+              href="/groupeleve"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+            >
+              <FaUsers className="text-xl mr-2" />
+              <span>Groupes d'élèves</span>
+            </Link>
+          </li>
+
+          <li className="mb-4">
             <Link
               href="/Paiement"
-              className="hover:bg-gray-700 p-2 block rounded flex items-center"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
             >
               <FaMoneyBillWave className="text-xl mr-2" />
-              <span>Paiement</span>
+              <span>Paiements</span>
             </Link>
           </li>
 
           <li>
             <button
-              onClick={async () => {
-                try {
-                  await axios.post("/api/auth/logout");
-                } catch (error) {
-                  console.error("Error logging out", error);
-                } finally {
-                  localStorage.removeItem("token");
-                  router.push("/");
-                }
-              }}
-              className="w-full text-left hover:bg-gray-700 p-2 rounded"
+              onClick={handleLogout}
+              className="flex items-center w-full text-white hover:bg-sky-700 p-2 rounded"
             >
-              Déconnexion
+              <FaSignOutAlt className="text-xl mr-2" />
+              <span>Déconnexion</span>
             </button>
           </li>
         </ul>
