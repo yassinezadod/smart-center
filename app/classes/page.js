@@ -1,8 +1,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaTrash, FaEdit } from 'react-icons/fa';
+import { Layout} from "antd";
 import Sidebar from '../components/Sidebar';
+import NavBar from "../components/NavBar";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaTimes } from 'react-icons/fa';
+
+
+const { Content } = Layout;
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState([]);
@@ -84,11 +91,15 @@ export default function ClassesPage() {
   const totalPages = Math.ceil(classes.length / itemsPerPage);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+    <Layout style={{ minHeight: "100vh" }}>
+<Sidebar />
+      <Layout style={{ marginLeft: 156 }}>
+        <NavBar />
+        <Content style={{ padding: '24px', minHeight: 'calc(100vh - 64px)' }}>
+    
       <div className="flex-1 p-6 overflow-auto">
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold mb-4 text-gray-900">Class Management</h1>
+          <h1 className="text-3xl font-bold mb-4 text-gray-900">Gestion des classes</h1>
           <button
             onClick={() => {
               setSelectedClass(null);
@@ -96,48 +107,49 @@ export default function ClassesPage() {
             }}
             className="bg-blue-600 text-white px-4 py-2 rounded mb-4 hover:bg-blue-700"
           >
-            Add Class
+            Ajouter une classe
           </button>
           {/* Form Popup */}
-          {showPopup && (
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-              <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-auto">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">{selectedClass ? 'Update Class' : 'Add New Class'}</h2>
-                <form onSubmit={selectedClass ? handleUpdateClass : handleAddClass}>
-                  <input
-                    type="text"
-                    placeholder="Niveau"
-                    value={selectedClass ? selectedClass.niveau : newClass.niveau}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (selectedClass) {
-                        setSelectedClass({ ...selectedClass, niveau: value });
-                      } else {
-                        setNewClass({ niveau: value });
-                      }
-                    }}
-                    className="border border-gray-300 p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-                    required
-                  />
-                  <div className="flex justify-between">
-                    <button
-                      type="submit"
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                    >
-                      {selectedClass ? 'Update Class' : 'Add Class'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowPopup(false)}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
+         
+{showPopup && (
+  <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-auto relative">
+      <button
+        onClick={() => setShowPopup(false)}
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+      >
+        <FaTimes size={20} />
+      </button>
+      <h2 className="text-xl font-bold mb-4 text-gray-900">{selectedClass ? 'Update Class' : 'Add New Class'}</h2>
+      <form onSubmit={selectedClass ? handleUpdateClass : handleAddClass}>
+        <input
+          type="text"
+          placeholder="Niveau"
+          value={selectedClass ? selectedClass.niveau : newClass.niveau}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (selectedClass) {
+              setSelectedClass({ ...selectedClass, niveau: value });
+            } else {
+              setNewClass({ niveau: value });
+            }
+          }}
+          className="border border-gray-300 p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          required
+        />
+        <div className="flex justify-between">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            {selectedClass ? 'Update Class' : 'Add Class'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
           {/* Classes Table */}
           <div className="overflow-x-auto bg-white shadow-md rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
@@ -161,13 +173,13 @@ export default function ClassesPage() {
                         }}
                         className="bg-yellow-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-yellow-600"
                       >
-                        Edit
+                        <FaEdit />
                       </button>
                       <button
                         onClick={() => handleDeleteClass(cls.id)}
                         className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
                       >
-                        Delete
+                        <FaTrash />
                       </button>
                     </td>
                   </tr>
@@ -203,6 +215,8 @@ export default function ClassesPage() {
           </div>
         </div>
       </div>
-    </div>
+             </Content>
+             </Layout>
+              </Layout>
   );
 }

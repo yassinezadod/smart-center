@@ -1,79 +1,142 @@
-// app/components/Sidebar.js
-'use client';
+"use client";
 
-import Link from 'next/link';
-import axios from 'axios';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import Link from "next/link";
+import {
+  FaUsers,
+  FaUser,
+  FaTachometerAlt,
+  FaChalkboard,
+  FaGraduationCap,
+  FaMoneyBillWave,
+  FaSignOutAlt
+} from "react-icons/fa";
 
 export default function Sidebar() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Ajout de l'état de chargement
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (token) {
-      axios.post('/api/auth/verify-token', { token })
-        .then(response => {
+      axios
+        .post("/api/auth/verify-token", { token })
+        .then((response) => {
           setUser(response.data.user);
+          setLoading(false); // Fin du chargement une fois l'utilisateur récupéré
         })
-        .catch(error => {
-          console.error('Invalid token or error verifying token', error);
-          localStorage.removeItem('token');
-          router.push('/');
+        .catch((error) => {
+          console.error("Invalid token or error verifying token", error);
+          localStorage.removeItem("token");
+          router.push("/");
+          setLoading(false); // Fin du chargement même en cas d'erreur
         });
     } else {
-      router.push('/');
+      router.push("/");
+      setLoading(false); // Fin du chargement si pas de token
     }
   }, [router]);
 
-  if (!user) return null; // Ne rien afficher si l'utilisateur n'est pas authentifié
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout");
+    } catch (error) {
+      console.error("Error logging out", error);
+    } finally {
+      localStorage.removeItem("token");
+      router.push("/");
+    }
+  };
 
   return (
-    <aside className="w-64 bg-gray-800 h-screen text-white p-4">
-      <h2 className="text-2xl font-bold mb-4">Sidebar</h2>
-      <ul>
-        <li className="mb-2">
-          <Link href="/dashboard" className="hover:bg-gray-700 p-2 block rounded">
-            Dashboard
-          </Link>
-        </li>
-        {user.role === 'SUPER_ADMIN' && (
-          <li className="mb-2">
-            <Link href="/users" className="hover:bg-gray-700 p-2 block rounded">
-              Users
+    <div className="flex">
+      <aside className="bg-sky-600 h-screen text-white p-4 fixed top-0 left-0">
+        <div className="flex items-center mb-6">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSV-zBcBp7RunZYMDrtEFexGgjDHkVAieXc1Q&s"
+            alt="Logo"
+            className="w-20 h-20 object-cover rounded-full"
+            style={{ marginLeft: "0.5cm" }}
+          />
+        </div>
+        <ul>
+          <li className="mb-4">
+            <Link
+              href="/dashboard"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+            >
+              <FaTachometerAlt className="text-xl mr-2" />
+              <span>Dashboard</span>
             </Link>
           </li>
-        )}
-        <li className="mb-2">
-          <Link href="/classes" className="hover:bg-gray-700 p-2 block rounded">
-            Class
-          </Link>
-        </li>
-        <li className="mb-2">
-          <Link href="/student" className="hover:bg-gray-700 p-2 block rounded">
-            Student
-          </Link>
-        </li>
-        <li>
-          <button
-            onClick={async () => {
-              try {
-                await axios.post('/api/auth/logout');
-              } catch (error) {
-                console.error('Error logging out', error);
-              } finally {
-                localStorage.removeItem('token');
-                router.push('/');
-              }
-            }}
-            className="w-full text-left hover:bg-gray-700 p-2 rounded"
-          >
-            Logout
-          </button>
-        </li>
-      </ul>
-    </aside>
+
+          {!loading && user?.role === "SUPER_ADMIN" && ( // Afficher ce lien seulement après le chargement
+            <li className="mb-4">
+              <Link
+                href="/users"
+                className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+              >
+                <FaUser className="text-xl mr-2" />
+                <span>Utilisateurs</span>
+              </Link>
+            </li>
+          )}
+
+          <li className="mb-4">
+            <Link
+              href="/classes"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+            >
+              <FaChalkboard className="text-xl mr-2" />
+              <span>Classes</span>
+            </Link>
+          </li>
+
+          <li className="mb-4">
+            <Link
+              href="/eleve"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+            >
+              <FaGraduationCap className="text-xl mr-2" />
+              <span>Eleve</span>
+            </Link>
+          </li>
+
+          <li className="mb-4">
+            <Link
+              href="/groupeleve"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+            >
+              <FaUsers className="text-xl mr-2" />
+              <span>Groupes d'élèves</span>
+            </Link>
+          </li>
+
+          <li className="mb-4">
+            <Link
+              href="/Paiement"
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+            >
+              <FaMoneyBillWave className="text-xl mr-2" />
+              <span>Paiements</span>
+            </Link>
+          </li>
+
+          <li>
+            <button
+              onClick={handleLogout}
+              className="flex items-center w-full text-white hover:bg-sky-700 p-2 rounded"
+            >
+              <FaSignOutAlt className="text-xl mr-2" />
+              <span>Déconnexion</span>
+            </button>
+          </li>
+        </ul>
+      </aside>
+    </div>
   );
 }
