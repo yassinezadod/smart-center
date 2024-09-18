@@ -80,6 +80,53 @@ export default function ClassesPage() {
     fetchStudents();
   }, []);
 
+// modifier le Paiement
+  const handleUpdate = async (e) => {
+  e.preventDefault();
+
+  // Préparation des données
+  const payload = {
+    studentId: selectedClass.studentId,
+    amount: selectedClass.amount,
+    paymentDate: selectedClass.paymentDate,
+    septembre: selectedClass.septembre,
+    octobre: selectedClass.octobre,
+    novembre: selectedClass.novembre,
+    decembre: selectedClass.decembre,
+    janvier: selectedClass.janvier,
+    fevrier: selectedClass.fevrier,
+    mars: selectedClass.mars,
+    avril: selectedClass.avril,
+    mai: selectedClass.mai,
+    juin: selectedClass.juin,
+  };
+
+  try {
+    const response = await fetch(`/api/paiement/updatePaiement/${selectedClass.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setPayments(payments.map(pay => pay.id === selectedClass.id ? data : pay));
+      setSelectedClass(null);
+      setShowPopup(false);
+    } else {
+      console.error('Error:', data.error || 'Unknown error');
+      alert('Une erreur est survenue lors de la mise à jour.');
+    }
+  } catch (error) {
+    console.error('Network error:', error);
+    alert('Erreur de réseau : veuillez réessayer.');
+  }
+};
+
+
 
 // Supprimer un paiement
 const handleDelete = async (id) => {
@@ -364,30 +411,31 @@ const handleDelete = async (id) => {
                           </td>
                         ))}
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <button
-                            onClick={() => {
-                              setSelectedClass(payment);
-                              setFormData({
-                                studentId: payment.studentId,
-                                amount: payment.amount,
-                                paymentDate: payment.paymentDate,
-                                septembre: payment.septembre,
-                                octobre: payment.octobre,
-                                novembre: payment.novembre,
-                                decembre: payment.decembre,
-                                janvier: payment.janvier,
-                                fevrier: payment.fevrier,
-                                mars: payment.mars,
-                                avril: payment.avril,
-                                mai: payment.mai,
-                                juin: payment.juin,
-                              });
-                              setShowPopup(true);
-                            }}
-                            className="bg-yellow-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-yellow-600"
-                          >
-                            <FaEdit />
-                          </button>
+                        <button
+  onClick={() => {
+    setSelectedClass(payment);
+    setFormData({
+      studentId: payment.studentId,
+      amount: payment.amount,
+      paymentDate: new Date().toISOString().split('T')[0], // Date au format YYYY-MM-DD
+      septembre: payment.septembre,
+      octobre: payment.octobre,
+      novembre: payment.novembre,
+      decembre: payment.decembre,
+      janvier: payment.janvier,
+      fevrier: payment.fevrier,
+      mars: payment.mars,
+      avril: payment.avril,
+      mai: payment.mai,
+      juin: payment.juin,
+    });
+    setShowPopup(true);
+  }}
+  className="bg-yellow-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-yellow-600"
+>
+  <FaEdit />
+</button>
+
                           <button
                              onClick={() => handleDelete(payment.id)}
                             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"

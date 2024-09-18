@@ -38,6 +38,18 @@ export default function NavBar() {
     }
   }, [router]);
 
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout");
+    } catch (error) {
+      console.error("Error logging out", error);
+    } finally {
+      localStorage.removeItem("token");
+      router.push("/");
+    }
+  };
+
   
   // Helper function to get initials for the avatar
   const getInitials = (name) => {
@@ -135,10 +147,10 @@ export default function NavBar() {
                   <Link href="/settings" className="hover:text-sky-600">Settings</Link>
                 </li>
                 <li className="px-4 py-2">
-                  <Link href="/logout" className="flex items-center text-red-500 hover:text-red-700">
+                  <button  onClick={handleLogout}  className="flex items-center text-red-500 hover:text-red-700">
                     <FaSignOutAlt className="mr-2" />
                     Logout
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>
