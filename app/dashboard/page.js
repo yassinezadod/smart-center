@@ -127,7 +127,7 @@ export default function Dashboard() {
   const cardData = [
     { title: "Utilisateurs", count: userCount },
     { title: "Classes", count: classesCount },
-    { title: "Étudiants", count: studentCount },
+    { title: "Eleves", count: studentCount },
     { title: "Paiements", count: 100 },
   ];
 
@@ -138,10 +138,10 @@ export default function Dashboard() {
     labels: classData.map(cls => cls.niveau), // Les labels sont les noms des classes
     datasets: [
       {
-        label: "Nombre d'étudiants",
+        label: "Nombre d'éleves",
         data: classData.map(cls => cls.studentCount), // Les données sont les nombres d'étudiants
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(135, 206, 235, 0.6)",
+        borderColor: "rgba(135, 206, 235, 1)",
         borderWidth: 1,
       },
     ],

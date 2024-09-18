@@ -9,6 +9,7 @@ import NavBar from "../components/NavBar";
 import { FaTimes } from 'react-icons/fa';
 import clsx from 'clsx'; // Ajout d'importation de clsx
 
+
 const { Content } = Layout;
 
 const PaymentStatusColor = {

@@ -54,7 +54,7 @@ export default function Sidebar() {
 
   return (
     <div className="flex">
-      <aside className="bg-sky-600 h-screen text-white p-4 fixed top-0 left-0">
+      <aside className="bg-[#0ea5e9] h-screen text-white p-4 fixed top-0 left-0">
         <div className="flex items-center mb-6">
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSV-zBcBp7RunZYMDrtEFexGgjDHkVAieXc1Q&s"
@@ -80,6 +80,7 @@ export default function Sidebar() {
                 href="/users"
                 className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
               >
+
                 <FaUser className="text-xl mr-2" />
                 <span>Utilisateurs</span>
               </Link>
