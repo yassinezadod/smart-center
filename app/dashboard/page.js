@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [userCount, setUserCount] = useState(0); // Nombre d'utilisateurs
   const [classesCount, setClassesCount] = useState(0); // Nombre de classes
   const [studentCount, setStudentCount] = useState(0); // Nombre d'étudiants
+  const [paymentCount, setPaymentCount] = useState(0);
   const [classData, setClassData] = useState([]); // Données des classes avec le nombre d'étudiants
   const [genderData, setGenderData] = useState({}); 
   const router = useRouter();
@@ -103,6 +104,15 @@ export default function Dashboard() {
         setError("Error fetching class data");
       });
 
+      axios.get("/api/paiement/getPaiements")
+      .then((response) => {
+        setPaymentCount(response.data.length);
+      })
+      .catch((error) => {
+        console.error("Error fetching payment count", error);
+        setError("Error fetching payment count");
+      });
+
   }, [router]);
 
   if (loading)
@@ -128,7 +138,7 @@ export default function Dashboard() {
     { title: "Utilisateurs", count: userCount },
     { title: "Classes", count: classesCount },
     { title: "Eleves", count: studentCount },
-    { title: "Paiements", count: 100 },
+    { title: "Paiements", count: paymentCount },
   ];
 
   const maxStudentCount = Math.max(...classData.map(cls => cls.studentCount), 0);

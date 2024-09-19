@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaBell, FaSignOutAlt, FaCircle } from "react-icons/fa"; // Ajout de FaCircle pour la bulle verte
+import { FaBell, FaSignOutAlt, FaCircle } from "react-icons/fa"; 
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function NavBar() {
+  const [notifications, setNotifications] = useState([]);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -38,6 +39,64 @@ export default function NavBar() {
     }
   }, [router]);
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const { data } = await axios.get('/api/paiement/getPaiements');
+        const currentDate = new Date();
+
+        const monthNames = [
+          'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+          'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+        ];
+
+        const unpaidNotifications = data.flatMap(payment => {
+          const paymentMonth = new Date(payment.paymentDate).getMonth() + 1;
+          const status = getStatusForMonth(currentDate.getMonth() + 1, payment);
+
+          if (status === 'UNPAID' && paymentMonth === currentDate.getMonth() + 1) {
+            const paymentDate = new Date(payment.paymentDate);
+            const timeDifference = Math.floor((currentDate - paymentDate) / (1000 * 60 * 60 * 24));
+            
+            // Vérification si la notification date de plus de 7 jours
+            if (timeDifference <= 7) {
+              return [{
+                name: payment.studentNom,
+                surname: payment.studentPrenom,
+                message: `${payment.studentNom} ${payment.studentPrenom} n'a pas payé pour le mois de ${monthNames[currentDate.getMonth()]}`
+              }];
+            }
+          }
+          return [];
+        });
+
+        setNotifications(unpaidNotifications);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des paiements", error);
+        setError("Erreur lors de la récupération des paiements");
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const getStatusForMonth = (currentMonth, payment) => {
+    switch (currentMonth) {
+      case 1: return payment.janvier;
+      case 2: return payment.fevrier;
+      case 3: return payment.mars;
+      case 4: return payment.avril;
+      case 5: return payment.mai;
+      case 6: return payment.juin;
+      case 7: return payment.juillet;
+      case 8: return payment.aout;
+      case 9: return payment.septembre;
+      case 10: return payment.octobre;
+      case 11: return payment.novembre;
+      case 12: return payment.decembre;
+      default: return "UNKNOWN";
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -50,30 +109,24 @@ export default function NavBar() {
     }
   };
 
-  
-  // Helper function to get initials for the avatar
   const getInitials = (name) => {
     if (!name) return '?';
     const names = name.split(' ');
     return names.map(name => name.charAt(0).toUpperCase()).join('');
   };
 
-  // Helper function to generate a light color based on initials
   const getColorFromInitials = (name) => {
-    const colors = [
-      '#FFEBEE', '#FFCDD2', '#EF9A9A', '#E57373', '#EF5350',
-      '#F44336', '#E53935', '#D32F2F', '#C62828', '#B71C1C',
-      '#F1F8E9', '#DCE775', '#C0CA33', '#A4B42B', '#9E9D24',
-      '#F0F4C3', '#E6EE9C', '#DCE775', '#D0D80A', '#C6D600',
-      '#E0F2F1', '#B9FBC0', '#4DB6AC', '#26A69A', '#00796B'
-    ];
+    const colors = ['#FFEBEE', '#FFCDD2', '#F44336', '#E57373', '#4DB6AC',
+                    '#F44336', '#E53935', '#D32F2F', '#C62828', '#B71C1C',
+                    '#F1F8E9', '#DCE775', '#C0CA33', '#A4B42B', '#9E9D24',
+                    '#F0F4C3', '#E6EE9C', '#DCE775', '#D0D80A', '#C6D600',
+                    '#E0F2F1', '#B9FBC0', '#4DB6AC', '#26A69A', '#00796B'];
     const initials = getInitials(name);
     let hash = 0;
     for (let i = 0; i < initials.length; i++) {
       hash = initials.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const index = Math.abs(hash % colors.length);
-    return colors[index];
+    return colors[Math.abs(hash % colors.length)];
   };
 
   const avatarColor = user ? getColorFromInitials(`${user.nom} ${user.prenom}`) : '#F0F0F0';
@@ -83,7 +136,6 @@ export default function NavBar() {
       <div className="text-2xl font-semibold">
         {/* Titre de l'application, si nécessaire */}
       </div>
-
       <div className="flex items-center space-x-4">
         {/* Notifications */}
         <div className="relative">
@@ -92,22 +144,30 @@ export default function NavBar() {
             className="relative text-gray-300 hover:text-white focus:outline-none"
           >
             <FaBell className="text-xl" />
-            {/* Badge */}
-            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-              3
-            </span>
+            {notifications.length > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                {notifications.length}
+              </span>
+            )}
           </button>
           {isNotificationMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded shadow-lg z-10">
-              <ul>
-                <li className="px-4 py-2 border-b">Notification 1</li>
-                <li className="px-4 py-2 border-b">Notification 2</li>
-                <li className="px-4 py-2">Notification 3</li>
+            <div className="absolute right-0 mt-2 w-80 bg-white text-gray-800 rounded shadow-lg z-10">
+              <ul className="max-h-60 overflow-y-auto">
+                {notifications.length > 0 ? (
+                  notifications.map((notification, index) => (
+                    <li key={index} className="px-4 py-2 border-b">
+                      {notification.message}
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-4 py-2">Aucune notification</li>
+                )}
               </ul>
             </div>
           )}
         </div>
 
+    
         {/* Profile */}
         <div className="relative">
           <button
