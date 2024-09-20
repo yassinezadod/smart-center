@@ -15,9 +15,6 @@ export async function GET() {
       },
     });
 
-    if (students.length === 0) {
-      return NextResponse.json({ message: 'Aucun étudiant trouvé' }, { status: 404 });
-    }
 
     // Construction des chemins complets et lecture des fichiers
     const studentsData = students.map(student => {
@@ -46,9 +43,7 @@ export async function GET() {
       return null;
     }).filter(student => student !== null);
 
-    if (studentsData.length === 0) {
-      return NextResponse.json({ message: 'Aucun étudiant trouvé' }, { status: 404 });
-    }
+ 
 
     // Retourner les données des étudiants en JSON
     return NextResponse.json(studentsData);

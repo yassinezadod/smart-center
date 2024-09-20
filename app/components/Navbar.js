@@ -63,6 +63,7 @@ export default function NavBar() {
               return [{
                 name: payment.studentNom,
                 surname: payment.studentPrenom,
+                mois : monthNames[currentDate.getMonth()],
                 message: `${payment.studentNom} ${payment.studentPrenom} n'a pas payé pour le mois de ${monthNames[currentDate.getMonth()]}`
               }];
             }
@@ -155,9 +156,14 @@ export default function NavBar() {
               <ul className="max-h-60 overflow-y-auto">
                 {notifications.length > 0 ? (
                   notifications.map((notification, index) => (
-                    <li key={index} className="px-4 py-2 border-b">
-                      {notification.message}
-                    </li>
+                    <li key={index} className="flex items-center justify-between px-4 py-2 border-b border-gray-200 hover:bg-gray-100 transition duration-200">
+  <div className="text-gray-800">
+    <b className="text-blue-600">{notification.name} {notification.surname}</b> n'a pas payé pour le mois <span className="font-semibold text-yellow-500">{notification.mois}</span>
+  </div>
+  <span className="text-sm text-white bg-green-400 px-2 py-1 rounded-full">Rappel</span>
+</li>
+
+
                   ))
                 ) : (
                   <li className="px-4 py-2">Aucune notification</li>

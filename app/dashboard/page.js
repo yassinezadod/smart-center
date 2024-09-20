@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Layout, Card, Typography, Spin, Alert } from "antd";
+import clsx from 'clsx';
 import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -23,7 +24,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 const { Content } = Layout;
 const { Title: AntTitle } = Typography;
 
+
 export default function Dashboard() {
+  const [payments, setPayments] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -107,6 +110,7 @@ export default function Dashboard() {
       axios.get("/api/paiement/getPaiements")
       .then((response) => {
         setPaymentCount(response.data.length);
+        setPayments(response.data);
       })
       .catch((error) => {
         console.error("Error fetching payment count", error);
@@ -114,6 +118,8 @@ export default function Dashboard() {
       });
 
   }, [router]);
+
+
 
   if (loading)
     return (
@@ -163,7 +169,7 @@ export default function Dashboard() {
       {
         label: "Répartition des Genres",
         data: Object.keys(genderData).map(gender => (genderData[gender] / totalGenderCount * 100).toFixed(2)), // Pourcentage
-        backgroundColor: ["blue", "red"],
+        backgroundColor: ["#FF69B4", "#1E90FF"],    //[fem, masc]
         borderColor: ["rgba(75, 192, 192, 1)", "rgba(153, 102, 255, 1)"],
         borderWidth: 1,
       },
@@ -227,6 +233,20 @@ export default function Dashboard() {
     }
   };
 
+  const months = [
+    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+  ];
+  
+  const getMonthName = () => {
+    const currentDate = new Date().getMonth(); // La méthode getMonth() renvoie un index de 0 à 11
+    return months[currentDate];
+  };
+  
+  console.log(getMonthName()); 
+
+  const lastSixPayments = payments.slice(-6); // Extrait les six dernières lignes
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sidebar />
@@ -249,7 +269,62 @@ export default function Dashboard() {
                 <Pie data={pieChartData} options={pieChartOptions} />
               </div>
             </div>
+
+               {/*****************************************************/}
+            <div className="flex flex-col gap-4 mt-8 md:flex-row">
+              <div className="p-4 bg-white rounded-lg shadow-md overflow-x-auto" style={{ width: '700px', maxWidth: '100%' }}>
+              <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                      <th scope="col" className="px-6 py-3">N°inscription</th>
+                      <th scope="col" className="px-6 py-3">Nom complete</th>
+                      <th scope="col" className="px-6 py-3">Montant</th>
+                      <th scope="col" className="px-6 py-3 text-blue-600">{getMonthName()}</th>
+                     
+                  </tr>
+              </thead>
+              <tbody>
+              {lastSixPayments.map((payment, index) => (
+                <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{payment.studentInscription}</td>
+                <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{payment.studentNom} {payment.studentPrenom}</td>
+                <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{payment.amount} DH</td>
+                <td
+  className={clsx(
+    "px-6 py-4 font-semibold",
+    {
+      "text-red-600": payment[getMonthName()] === 'UNPAID',
+      "text-green-600": payment[getMonthName()] === 'PAID',
+      "text-blue-600": payment[getMonthName()] === 'PENDING',
+    }
+  )}
+>
+  {payment[getMonthName()] === 'PENDING' ? 'En attente' : payment[getMonthName()] === 'PAID' ? 'Payé' : 'Non payé'}
+</td>
+
+
+                </tr>
+              ))}
+               
+
+
+              </tbody>
+              </table>
+              <br />
+              <center>
+              <button   onClick={() => router.push("/Paiement")} className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">
+               Voir plus
+              </button>
+              </center>
+
+              </div>
+              
+            </div>
+            
+
+
           </div>
+          
         </Content>
       </Layout>
     </Layout>
