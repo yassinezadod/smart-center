@@ -116,7 +116,8 @@ export default function Sidebar() {
               <span>Groupes d'élèves</span>
             </Link>
           </li>
-
+         
+          {!loading && user?.role === "SUPER_ADMIN" && ( // Afficher ce lien seulement après le chargement
           <li className="mb-4">
             <Link
               href="/Paiement"
@@ -126,6 +127,7 @@ export default function Sidebar() {
               <span>Paiements</span>
             </Link>
           </li>
+          )}
 
           <li>
             <button

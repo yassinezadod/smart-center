@@ -64,8 +64,9 @@ model Payment {
   id          Int      @id @default(autoincrement())
   studentId   Int
   amount      Float
-  paymentDate DateTime
-   septembre   PaymentStatus
+  paymentDate DateTime 
+  frais_ins   Float
+  septembre   PaymentStatus
   octobre     PaymentStatus
   novembre    PaymentStatus
   decembre    PaymentStatus
@@ -75,6 +76,8 @@ model Payment {
   avril       PaymentStatus
   mai         PaymentStatus
   juin        PaymentStatus
+  juillet     PaymentStatus
+  aout        PaymentStatus
 
 
   // Relations

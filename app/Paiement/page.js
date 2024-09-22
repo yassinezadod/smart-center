@@ -35,7 +35,8 @@ export default function ClassesPage() {
   const [formData, setFormData] = useState({
     studentId: '',
     amount: '',
-    paymentDate: '',
+    paymentDate: new Date().toISOString().split('T')[0],
+    frais_ins: '',
     septembre: 'PENDING',
     octobre: 'PENDING',
     novembre: 'PENDING',
@@ -46,6 +47,8 @@ export default function ClassesPage() {
     avril: 'PENDING',
     mai: 'PENDING',
     juin: 'PENDING',
+    juillet: 'PENDING',
+    aout: 'PENDING',
   });
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,7 +56,7 @@ export default function ClassesPage() {
   const [searchTerm, setSearchTerm] = useState(''); // Ajout de l'état pour le terme de recherche
   const itemsPerPage = 8;
 
-  const months = ['septembre', 'octobre', 'novembre', 'decembre', 'janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin'];
+  const months = ['septembre', 'octobre', 'novembre', 'decembre', 'janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin', 'juillet','aout'];
 
   const statuses = ["PENDING", "UNPAID"];
 
@@ -201,7 +204,8 @@ const handleDelete = async (id) => {
       setFormData({
         studentId: '',
         amount: '',
-        paymentDate: '',
+        paymentDate: new Date().toISOString().split('T')[0],
+        frais_ins: '',
         septembre: 'PENDING',
         octobre: 'PENDING',
         novembre: 'PENDING',
@@ -212,6 +216,8 @@ const handleDelete = async (id) => {
         avril: 'PENDING',
         mai: 'PENDING',
         juin: 'PENDING',
+        juillet: 'PENDING',
+        aout: 'PENDING',
       });
       // Refresh payments after adding
       const updatedPayments = await axios.get('/api/paiement/getPaiements');
@@ -300,17 +306,17 @@ const handleDelete = async (id) => {
               required
             />
 
-<label className="block mb-1">Date de Paiement</label>
+<label className="block mb-1">Frais d'inscription</label>
             <input
-              type="date"
-              name="paymentDate"
-              value={formData.paymentDate}
+              type="number"
+              name="frais_ins"
+              value={formData.frais_ins}
               onChange={handleInputChange}
               className="border border-gray-300 p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
               required
             />
              {/* Champs pour les mois */}
-          {Object.keys(formData).filter(key => key !== 'studentId' && key !== 'amount' && key !== 'paymentDate').map(month => (
+          {Object.keys(formData).filter(key => key !== 'studentId' && key !== 'amount' && key !=='paymentDate' && key !== 'frais_ins').map(month => (
             <div className="mb-4" key={month}>
               <label className="block mb-1">{month.charAt(0).toUpperCase() + month.slice(1)}</label>
               <select
@@ -384,7 +390,7 @@ const handleDelete = async (id) => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom complete</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de Inscription</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de Paiement</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frais d'inscription</th>
                       {months.map(month => (
                       <th key={month} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{month}</th>
                     ))}
@@ -400,7 +406,7 @@ const handleDelete = async (id) => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.studentNom} {payment.studentPrenom}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.amount} DH</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(payment.studentCreatedAt).toLocaleDateString()}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(payment.paymentDate).toLocaleDateString()}</td>    
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.frais_ins} DH</td>    
                         {months.map(month => (
                           <td key={month} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <span  className={clsx(
@@ -419,6 +425,7 @@ const handleDelete = async (id) => {
       studentId: payment.studentId,
       amount: payment.amount,
       paymentDate: new Date().toISOString().split('T')[0], // Date au format YYYY-MM-DD
+      frais_ins: payment.frais_ins,
       septembre: payment.septembre,
       octobre: payment.octobre,
       novembre: payment.novembre,
@@ -429,6 +436,8 @@ const handleDelete = async (id) => {
       avril: payment.avril,
       mai: payment.mai,
       juin: payment.juin,
+      juillet: payment.juillet,
+      aout: payment.aout,
     });
     setShowPopup(true);
   }}
