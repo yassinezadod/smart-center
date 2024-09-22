@@ -12,6 +12,7 @@ export async function POST(req) {
     const studentId = parseInt(data.studentId, 10); // Convertir en entier
     const amount = parseFloat(data.amount); // Convertir en float
     const paymentDate = new Date(data.paymentDate);
+    const frais_ins = parseFloat(data.frais_ins); // Convertir en float
     
     // Assigner des valeurs par défaut pour les mois
     const monthsStatus = {
@@ -25,9 +26,11 @@ export async function POST(req) {
       avril: data.avril || 'PENDING',
       mai: data.mai || 'PENDING',
       juin: data.juin || 'PENDING',
+      juillet: data.juillet || 'PENDING',
+      aout: data.aout || 'PENDING',
     };
 
-    if (isNaN(studentId) || isNaN(amount) || !paymentDate ) {
+    if (isNaN(studentId) || isNaN(amount) || !paymentDate || isNaN(frais_ins) ) {
       return NextResponse.json({ message: 'Invalid or missing fields' }, { status: 400 });
     }
 
@@ -36,6 +39,7 @@ export async function POST(req) {
         studentId: studentId,
         amount: amount,
         paymentDate: paymentDate,
+        frais_ins: frais_ins,
         ...monthsStatus, // Inclure les mois avec les valeurs par défaut
       },
     });
