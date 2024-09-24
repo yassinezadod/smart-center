@@ -34,6 +34,7 @@ export async function GET() {
           inscription: student.inscription,
           telephone: student.telephone,
           classId: student.classId,
+          depart: student.depart,  // Ajout du champ départ
           fileName: path.basename(student.picture),
           fileData: fileBuffer.toString('base64'),
           mimeType: mimeType,

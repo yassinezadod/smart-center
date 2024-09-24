@@ -20,10 +20,13 @@ export async function PUT(req, { params }) {
     const inscription = data.get('inscription');
     const telephone = data.get('telephone');
     const classId = parseInt(data.get('classId'));
+    const depart = data.get('depart');  // Récupération du champ depart
 
-    if (!id || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !telephone || isNaN(classId)) {
+    if (!id || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !depart || !telephone || isNaN(classId)) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
+
+    
 
     let pictureUrl = null;
     if (image) {
@@ -55,6 +58,7 @@ export async function PUT(req, { params }) {
         inscription,
         telephone,
         classId: isNaN(classId) ? undefined : classId,
+        depart,
       },
     });
 

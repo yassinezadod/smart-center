@@ -390,6 +390,7 @@ const handleDelete = async (id) => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom complete</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de Inscription</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Départ</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frais d'inscription</th>
                       {months.map(month => (
                       <th key={month} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{month}</th>
@@ -406,6 +407,22 @@ const handleDelete = async (id) => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.studentNom} {payment.studentPrenom}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.amount} DH</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(payment.studentCreatedAt).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {payment.studentDepart === 'Actif' ? (
+          
+                          <div className="flex items-center justify-center w-full h-full">
+                          <span className="block w-3 h-3 bg-green-500 rounded-full"></span>
+                          </div>
+
+        ) : (
+          <div className="flex items-center space-x-2">
+            <span className="block w-3 h-3 bg-red-500 rounded-full"></span>
+            <span className="text-red-500">
+              {payment.studentDepart.split('|')[1].trim()}
+            </span>
+          </div>
+        )}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.frais_ins} DH</td>    
                         {months.map(month => (
                           <td key={month} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

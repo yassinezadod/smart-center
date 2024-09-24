@@ -15,6 +15,7 @@ export async function GET() {
             inscription: true,
             picture: true,
             createdAt: true, // Assurez-vous que ces champs existent et sont corrects
+            depart: true,
           },
         },
       },
@@ -46,7 +47,8 @@ export async function GET() {
       studentPrenom: payment.student.prenom,
       studentInscription: payment.student.inscription,
       studentPicture: payment.student.picture ? basePath + payment.student.picture.split('/').pop() : null,
-      studentCreatedAt: payment.student.createdAt.toISOString()
+      studentCreatedAt: payment.student.createdAt.toISOString(),
+      studentDepart: payment.student.depart
     }));
 
     return new Response(JSON.stringify(updatedPayments), {

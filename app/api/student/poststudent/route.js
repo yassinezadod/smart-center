@@ -18,10 +18,14 @@ export async function POST(req) {
       const inscription = data.get('inscription');
       const telephone = data.get('telephone');
       const classId = parseInt(data.get('classId'));
+      const depart = data.get('depart'); // Récupération du champ départ
   
-      if (!image || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !telephone || isNaN(classId)) {
+      if (!image || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !telephone || !depart || isNaN(classId)) {
         return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
       }
+
+
+     
   
       // Créer un chemin pour sauvegarder l'image dans le dossier app
       const uploadDir = path.join(process.cwd(), 'app/uploads');
@@ -47,6 +51,7 @@ export async function POST(req) {
           inscription: inscription,
           telephone: telephone,
           classId: classId,
+          depart: depart // Ajout du champ départ
         },
       });
   
