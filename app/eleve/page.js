@@ -26,14 +26,20 @@ export default function ClassesPage() {
     const [images, setImages] = useState([]);
     const [classes, setClasses] = useState([]);
     const [selectedClass, setSelectedClass] = useState('');
+    const [depart, setDepart] = useState('Actif'); // Default value
+    const [departureDate, setDepartureDate] = useState(''); // Track departure date
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentImageId, setCurrentImageId] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchInscription, setSearchInscription] = useState('');
   const [searchNomPrenom, setSearchNomPrenom] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
   const [searchGenre, setSearchGenre] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [uploadStatus, setUploadStatus] = useState(false);
+  const [fileName, setFileName] = useState('');
+
   const itemsPerPage = 8;
 
   const fetchImages = async () => {
@@ -52,6 +58,7 @@ export default function ClassesPage() {
       genre: image.genre,
       inscription: image.inscription,
       telephone: image.telephone,
+      depart: image.depart,
       createdAt: new Date(image.createdAt).toLocaleDateString(),
       classId: image.classId,
       url: `data:${image.mimeType};base64,${image.fileData}`
@@ -61,6 +68,18 @@ export default function ClassesPage() {
     console.error('Erreur lors de la récupération des élèves:', error);
   }
 };
+
+
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    setImage(file);
+    setUploadStatus(true); // Set upload status to true when a file is selected
+  } else {
+    setUploadStatus(false); // Reset upload status if no file is selected
+  }
+};
+
 
 // Utilisation de `fetchImages` dans `useEffect`
 useEffect(() => {
@@ -90,8 +109,12 @@ useEffect(() => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+     // Encode departure status and date
+     const departValue = depart === 'Non Actif' && departureDate ? `${depart}|${departureDate}` : depart;
 
-    if (!image || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !telephone || !selectedClass) {
+
+    if (!image || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !telephone || !selectedClass || !departValue) {
       alert('Veuillez remplir tous les champs.');
       return;
     }
@@ -107,6 +130,7 @@ useEffect(() => {
       formData.append('inscription', inscription);
       formData.append('telephone', telephone);
       formData.append('classId', selectedClass);
+      formData.append('depart', departValue);  // Append depart with departure date if applicable
 
       const url = isEditing ? `/api/student/putStudent/${currentImageId}` : '/api/student/postStudent';
       const method = isEditing ? 'PUT' : 'POST';
@@ -155,16 +179,26 @@ useEffect(() => {
     }
   };
 
+  // Function to format date to YYYY-MM-DD
+const formatDate = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
   // Fonction pour ouvrir le formulaire d'édition avec les informations de l'élève
   const handleEdit = (img) => {
     setNom(img.nom);
     setPrenom(img.prenom);
-    setBirthDate(img.birthDate);
+    setBirthDate(formatDate(img.birthDate));
     setEcoleOrigine(img.ecoleOrigine);
     setGenre(img.genre);
     setInscription(img.inscription);
     setTelephone(img.telephone);
     setSelectedClass(img.classId);
+    setDepart(img.depart);
     setImage(null); // Ne pas préremplir l'image
     setCurrentImageId(img.id);
     setIsEditing(true);
@@ -178,9 +212,10 @@ useEffect(() => {
   const filteredImages = images.filter((img) => {
     const matchesInscription = img.inscription.toLowerCase().includes(searchInscription.toLowerCase());
     const matchesNomPrenom = (img.nom + ' ' + img.prenom).toLowerCase().includes(searchNomPrenom.toLowerCase());
+    const matchesStatus = searchStatus === '' || (img.depart === searchStatus || (img.depart.startsWith('Non Actif') && searchStatus === 'Non Actif'));
     const matchesGenre = searchGenre ? img.genre === searchGenre : true;
 
-    return matchesInscription && matchesNomPrenom && matchesGenre;
+    return matchesInscription && matchesNomPrenom && matchesGenre && matchesStatus;
   });
 
   const exportToExcel = () => {
@@ -211,6 +246,10 @@ useEffect(() => {
   const currentClasses = classes.slice(indexOfFirstClass, indexOfLastClass);
 
   const totalPages = Math.ceil(classes.length / itemsPerPage);
+
+
+  // Decode departure status and date
+  const [departStatus, departureDateValue] = depart.includes('|') ? depart.split('|') : [depart, ''];
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -324,43 +363,98 @@ useEffect(() => {
                   ))}
                   </select>
 
-        <div class="flex items-center justify-center w-full">
-          <label
-            for="dropzone-file"
-            class="flex flex-col items-center justify-center w-full h-20 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-60 hover:bg-blue-100 dark:bg-blue-700 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-          >
-            <div class="flex flex-col items-center justify-center pt-3 pb-4">
-              <svg
-                class="w-6 h-6 mb-2 text-gray-500 dark:text-gray-400"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 16"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                />
-              </svg>
-              <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                <span class="font-semibold">Cliquez pour téléverser</span> ou faites glisser et déposez
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                SVG, PNG, JPG ou GIF (MAX. 800x400px)
-              </p>
-            </div>
-            <input
-              id="dropzone-file"
-              type="file"
-              onChange={(e) => setImage(e.target.files[0])}
-              class="hidden"
-              required
-            />
-          </label>
-        </div>
+                   {/* Depart Select Field */}
+      <select
+        value={departStatus}
+        onChange={(e) => setDepart(e.target.value)}
+        className="border border-gray-300 p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+        required
+      >
+        <option value="Actif" className="text-green-500">Active</option>
+        <option value="Non Actif" className="text-red-500">Non Active</option>
+      </select>
+
+      {/* Conditionally Render Departure Date Field */}
+      {departStatus === 'Non Actif' && (
+        <div className="mb-4">
+    <label 
+      htmlFor="departureDate" 
+      className="block text-gray-700 text-sm font-medium mb-2"
+    >
+      Sélectionnez la date de départ
+    </label>
+    <input
+      id="departureDate"
+      type="date"
+      placeholder="date de départ"
+      value={departureDate}
+      onChange={(e) => setDepartureDate(e.target.value)}
+      className="border border-gray-300 p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+      required
+    />
+  </div>
+
+      )}
+
+        {/* File Upload Section */}
+        <div className="flex items-center justify-center w-full mb-4">
+  <label
+    htmlFor="dropzone-file"
+    className={`flex flex-col items-center justify-center w-full h-20 border-2 border-dashed rounded-lg cursor-pointer ${
+      uploadStatus ? 'border-green-500 bg-green-100' : 'border-blue-300 gray-600 hover:bg-blue-100'
+    }`}
+  >
+    <div className="flex flex-col items-center justify-center pt-3 pb-4">
+      <svg
+        className={`w-6 h-6 mb-2 ${uploadStatus ? 'text-green-500' : 'text-gray-500'}`}
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 20 16"
+      >
+        <path
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+        />
+      </svg>
+      {fileName ? (
+        <p className="mb-1 text-sm text-gray-500">
+          Fichier sélectionné : <span className="font-semibold">{fileName}</span>
+        </p>
+      ) : (
+        <>
+          <p className="mb-1 text-sm text-gray-500">
+            <span className="font-semibold">Cliquez pour téléverser</span> ou faites glisser et déposez
+          </p>
+          <p className="text-xs text-gray-500">
+            PNG, JPG (MAX. 800x400px)
+          </p>
+        </>
+      )}
+    </div>
+    <input
+      id="dropzone-file"
+      type="file"
+      onChange={(e) => {
+        const file = e.target.files[0];
+        if (file) {
+          setImage(file);
+          setFileName(file.name); // Met à jour le nom du fichier
+          setUploadStatus(true); // Met à jour le statut du téléchargement
+        } else {
+          setUploadStatus(false); // Réinitialise le statut si aucun fichier n'est sélectionné
+          setFileName(''); // Réinitialise le nom du fichier
+        }
+      }}
+      className="hidden"
+      required
+    />
+  </label>
+</div>
+
         <br />
                   <div className="flex justify-between">
                     <button
@@ -399,6 +493,16 @@ useEffect(() => {
           <option value="Masculin">Masculin</option>
           <option value="Féminin">Féminin</option>
         </select>
+
+        <select
+    value={searchStatus}
+    onChange={(e) => setSearchStatus(e.target.value)}
+    className="p-3 border border-gray-300 rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+  >
+    <option value="">Tous les statuts</option>
+    <option value="Actif">Active</option>
+    <option value="Non Actif">Non Active</option>
+  </select>
       </div>
 
           {/* Classes Table */}
@@ -416,6 +520,7 @@ useEffect(() => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -438,6 +543,22 @@ useEffect(() => {
                     className="w-12 h-12 object-cover rounded-full"
                   />
                     </td>
+
+        <td className="px-6 py-4 whitespace-nowrap text-sm">
+        {img.depart === 'Actif' ? (
+          <div className="flex items-center space-x-2">
+            <span className="block w-3 h-3 bg-green-500 rounded-full"></span>
+            <span className="text-gray-500">Active</span>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <span className="block w-3 h-3 bg-red-500 rounded-full"></span>
+            <span className="text-red-500">
+              {img.depart.split('|')[1].trim()}
+            </span>
+          </div>
+        )}
+      </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button onClick={() => handleView(img)} className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-blue-600">
                           <FaEye />
