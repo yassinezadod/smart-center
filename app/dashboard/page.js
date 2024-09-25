@@ -38,6 +38,19 @@ export default function Dashboard() {
   const [genderData, setGenderData] = useState({}); 
   const router = useRouter();
 
+
+  const months = [
+    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+  ];
+  
+  const getMonthName = () => {
+    const currentDate = new Date().getMonth(); // La méthode getMonth() renvoie un index de 0 à 11
+    return months[currentDate];
+  };
+  
+  console.log(getMonthName()); 
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -83,10 +96,11 @@ export default function Dashboard() {
     // Récupérer le nombre d'étudiants
     axios.get("/api/student/getStudent")
       .then((response) => {
-        setStudentCount(response.data.length); // Met à jour le nombre d'étudiants
+        const activeStudents = response.data.filter(student => student.depart === "Actif");
+        setStudentCount(activeStudents.length); // Met à jour le nombre d'étudiants
 
         // Traitement des données de genre
-        const genderCounts = response.data.reduce((counts, student) => {
+        const genderCounts = activeStudents.reduce((counts, student) => {
           counts[student.genre] = (counts[student.genre] || 0) + 1;
           return counts;
         }, {});
@@ -109,7 +123,8 @@ export default function Dashboard() {
 
       axios.get("/api/paiement/getPaiements")
       .then((response) => {
-        setPaymentCount(response.data.length);
+        const paiementRetarde = response.data.filter(payment => payment[getMonthName()] === 'UNPAID');
+        setPaymentCount(paiementRetarde.length);
         setPayments(response.data);
       })
       .catch((error) => {
@@ -144,7 +159,11 @@ export default function Dashboard() {
     { title: "Utilisateurs", count: userCount },
     { title: "Classes", count: classesCount },
     { title: "Eleves", count: studentCount },
-    { title: "Paiements", count: paymentCount },
+    {
+      title: "Paiements retardé",
+      count: paymentCount,
+      description: "Ce Mois",  // Ajout de la description pour Paiements retardé
+    },
   ];
 
   const maxStudentCount = Math.max(...classData.map(cls => cls.studentCount), 0);
@@ -233,17 +252,7 @@ export default function Dashboard() {
     }
   };
 
-  const months = [
-    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
-  ];
-  
-  const getMonthName = () => {
-    const currentDate = new Date().getMonth(); // La méthode getMonth() renvoie un index de 0 à 11
-    return months[currentDate];
-  };
-  
-  console.log(getMonthName()); 
+
 
   const lastSixPayments = payments.slice(-6); // Extrait les six dernières lignes
 
@@ -258,6 +267,9 @@ export default function Dashboard() {
               {cardData.map((card, index) => (
                 <Card key={index} title={card.title} style={{ width: '92%', margin:"20px", textAlign: "center" }}>
                   <p className="text-2xl md:text-3xl font-bold">{card.count}</p>
+                  {card.description && ( // Si la carte a une description
+                    <p className="text-red-500 text-right" style={{ fontSize: "90%", marginTop: "-25px" ,marginRight: "-7px" ,fontFamily: "serif" }}>{card.description}</p> 
+                  )}
                 </Card>
               ))}
             </div>
