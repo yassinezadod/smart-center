@@ -15,7 +15,8 @@ export async function GET() {
     const classData = classes.map(cls => ({
       id: cls.id,
       niveau: cls.niveau,
-      studentCount: cls.students.length,
+         // Compte uniquement les étudiants dont le champ "depart" est "Actif"
+      studentCount: cls.students.filter(student => student.depart === "Actif").length,
     }));
 
     return new Response(JSON.stringify(classData), {
