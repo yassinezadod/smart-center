@@ -228,7 +228,8 @@ const formatDate = (date) => {
       EcoleDorigine: img.ecoleOrigine,
       Genre: img.genre,
       Téléphone: img.telephone,
-      Classe: getClassName(img.classId)
+      Classe: getClassName(img.classId),
+      Status: img.depart,
     })));
 
     const wb = XLSX.utils.book_new();
