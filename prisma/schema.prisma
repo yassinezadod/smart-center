@@ -52,7 +52,9 @@ model Student {
 
 model Class {
   id        Int       @id @default(autoincrement())
-  niveau    String
+  niveauScolaire  NiveauScolaire
+  niveauClasse    String    // Exemple: 1er, 2eme, etc.
+  group           String    // Exemple: A, B, etc.
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -61,6 +63,12 @@ model Class {
  
 }
 
+enum NiveauScolaire {
+  Primaire
+  College
+  Lycee
+  Formation
+}
 model Payment {
   id          Int      @id @default(autoincrement())
   studentId   Int

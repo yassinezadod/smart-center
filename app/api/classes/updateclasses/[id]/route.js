@@ -5,12 +5,16 @@ const prisma = new PrismaClient();
 
 export async function PUT(request, { params }) {
   const { id } = params;
-  const { niveau } = await request.json();
+  const { niveauScolaire, niveauClasse, group } = await request.json();
 
   try {
     const updatedClass = await prisma.class.update({
       where: { id: parseInt(id) },
-      data: { niveau },
+      data: { 
+        niveauScolaire,
+        niveauClasse,
+        group
+      },
     });
     return NextResponse.json(updatedClass);
   } catch (error) {

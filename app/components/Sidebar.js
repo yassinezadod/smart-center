@@ -11,13 +11,16 @@ import {
   FaChalkboard,
   FaGraduationCap,
   FaMoneyBillWave,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaChevronDown,
+  FaChevronUp
 } from "react-icons/fa";
 
 export default function Sidebar() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // Ajout de l'état de chargement
+  const [isClassesOpen, setIsClassesOpen] = useState(false); // État pour gérer l'ouverture du sous-menu
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,9 +55,12 @@ export default function Sidebar() {
     }
   };
 
+  const toggleClassesMenu = () => {
+    setIsClassesOpen(prevState => !prevState); // Alterne l'état du sous-menu
+  };
   return (
     <div className="flex">
-      <aside className="bg-[#0ea5e9] h-screen text-white p-4 fixed top-0 left-0">
+      <aside className="bg-[#0ea5e9] h-screen text-white p-4 fixed top-0 left-0 overflow-y-auto">
         <div className="flex items-center mb-6">
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSV-zBcBp7RunZYMDrtEFexGgjDHkVAieXc1Q&s"
@@ -87,14 +93,55 @@ export default function Sidebar() {
             </li>
           )}
 
-          <li className="mb-4">
-            <Link
-              href="/classes"
-              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+          <li className="mb-4 relative">
+            <button
+              onClick={toggleClassesMenu}
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded w-full text-left"
             >
               <FaChalkboard className="text-xl mr-2" />
               <span>Classes</span>
-            </Link>
+              {isClassesOpen ? (
+                <FaChevronUp className="ml-auto" />
+              ) : (
+                <FaChevronDown className="ml-auto" />
+              )}
+            </button>
+            {isClassesOpen && (
+              <ul className="pl-4 mt-2 bg-[#0284c7] rounded-md">
+                <li className="mb-2">
+                  <Link
+                    href="/classes/primaire"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Primaire</span>
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link
+                    href="/classes/college"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Collège</span>
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link
+                    href="/classes/lycee"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Lycée</span>
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link
+                    href="/classes/formation"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Formation</span>
+                  </Link>
+                </li>
+              </ul>
+            )}
           </li>
 
           <li className="mb-4">
