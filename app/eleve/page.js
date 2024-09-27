@@ -40,6 +40,14 @@ export default function ClassesPage() {
   const [uploadStatus, setUploadStatus] = useState(false);
   const [fileName, setFileName] = useState('');
 
+  const [niveauxScolaires, setNiveauxScolaires] = useState([]);
+  const [niveauxClasses, setNiveauxClasses] = useState([]);
+  const [groups, setGroups] = useState([]);
+
+  const [selectedNiveauScolaire, setSelectedNiveauScolaire] = useState('');
+  const [selectedNiveauClasse, setSelectedNiveauClasse] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState('');
+
   const itemsPerPage = 8;
 
   const fetchImages = async () => {
@@ -70,16 +78,6 @@ export default function ClassesPage() {
 };
 
 
-const handleFileChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setImage(file);
-    setUploadStatus(true); // Set upload status to true when a file is selected
-  } else {
-    setUploadStatus(false); // Reset upload status if no file is selected
-  }
-};
-
 
 // Utilisation de `fetchImages` dans `useEffect`
 useEffect(() => {
@@ -93,18 +91,79 @@ useEffect(() => {
       }
       const data = await response.json();
       setClasses(data);
+
+      // Extract niveaux scolaires from the fetched classes
+      const uniqueNiveauxScolaires = Array.from(new Set(data.map(cls => cls.niveauScolaire)))
+        .map(niveau => ({ id: niveau, nom: niveau }));
+      setNiveauxScolaires(uniqueNiveauxScolaires);
     } catch (error) {
       console.error('Erreur lors de la récupération des classes:', error);
     }
-  }
+  };
   fetchClasses();
 }, []);
 
+  // Fetch niveaux de classe basé sur le niveau scolaire sélectionné
+  useEffect(() => {
+    if (selectedNiveauScolaire) {
+      const fetchNiveauxClasses = async () => {
+        try {
+          const response = await fetch(`/api/classes/getclasses?niveauScolaire=${selectedNiveauScolaire}`);
+          const data = await response.json();
+          const uniqueNiveauxClasses = Array.from(new Set(data.map(cls => cls.niveauClasse)))
+            .map(niveau => ({ id: niveau, nom: niveau }));
+          setNiveauxClasses(uniqueNiveauxClasses);
+          
+        } catch (error) {
+          console.error('Erreur lors de la récupération des niveaux de classe:', error);
+        }
+      };
+
+      fetchNiveauxClasses();
+    } else {
+      setNiveauxClasses([]);
+      setGroups([]);
+    }
+  }, [selectedNiveauScolaire]);
+
+
+   // Fetch groupes basé sur le niveau de classe sélectionné
+   useEffect(() => {
+    if (selectedNiveauClasse) {
+      const fetchGroups = async () => {
+        try {
+          const response = await fetch(`/api/classes/getclasses?niveauClasse=${selectedNiveauClasse}`);
+          const data = await response.json();
+          const uniqueGroups = Array.from(new Set(data.map(cls => cls.group)))
+            .map(group => ({ id: group, nom: group }));
+            console.log(uniqueGroups)
+          setGroups(uniqueGroups);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des groupes:', error);
+        }
+      };
+
+      fetchGroups();
+    } else {
+      setGroups([]);
+    }
+  }, [selectedNiveauClasse]);
+
 
   // Trouver le niveau de classe basé sur l'id
+  const getScolaireName = (classId) => {
+    const cls = classes.find(cls => cls.id === classId);
+    return cls ? cls.niveauScolaire : 'Non spécifiée';
+  };
+
   const getClassName = (classId) => {
     const cls = classes.find(cls => cls.id === classId);
-    return cls ? cls.niveau : 'Non spécifiée';
+    return cls ? cls.niveauClasse : 'Non spécifiée';
+  };
+
+  const getGroupName = (classId) => {
+    const cls = classes.find(cls => cls.id === classId);
+    return cls ? cls.group : 'Non spécifiée';
   };
 
   const handleSubmit = async (e) => {
@@ -113,8 +172,14 @@ useEffect(() => {
      // Encode departure status and date
      const departValue = depart === 'Non Actif' && departureDate ? `${depart}|${departureDate}` : depart;
 
+     // Handle group change and display the ID of the selected class
+     const selectedClass = classes.find(cls => cls.group === selectedGroup && cls.niveauClasse === selectedNiveauClasse);
+     if (selectedClass) {
+       console.log('ID de la classe sélectionnée:', selectedClass.id);
+     }
 
-    if (!image || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !telephone || !selectedClass || !departValue) {
+
+    if (!image || !nom || !prenom || !birthDate || !ecoleOrigine || !genre || !inscription || !telephone || !selectedClass.id || !departValue) {
       alert('Veuillez remplir tous les champs.');
       return;
     }
@@ -129,7 +194,7 @@ useEffect(() => {
       formData.append('genre', genre);
       formData.append('inscription', inscription);
       formData.append('telephone', telephone);
-      formData.append('classId', selectedClass);
+      formData.append('classId', selectedClass.id);
       formData.append('depart', departValue);  // Append depart with departure date if applicable
 
       const url = isEditing ? `/api/student/putStudent/${currentImageId}` : '/api/student/postStudent';
@@ -228,7 +293,9 @@ const formatDate = (date) => {
       EcoleDorigine: img.ecoleOrigine,
       Genre: img.genre,
       Téléphone: img.telephone,
+      Ecole: getScolaireName(img.classId),
       Classe: getClassName(img.classId),
+      Group: getGroupName(img.classId),
       Status: img.depart,
     })));
 
@@ -244,9 +311,9 @@ const formatDate = (date) => {
  
   const indexOfLastClass = currentPage * itemsPerPage;
   const indexOfFirstClass = indexOfLastClass - itemsPerPage;
-  const currentClasses = classes.slice(indexOfFirstClass, indexOfLastClass);
+  const currentClasses = filteredImages.slice(indexOfFirstClass, indexOfLastClass);
 
-  const totalPages = Math.ceil(classes.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
 
 
   // Decode departure status and date
@@ -350,20 +417,51 @@ const formatDate = (date) => {
                     className="border border-gray-300 p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                     required
                   />
-                  <select
-                      value={selectedClass}
-                      onChange={(e) => setSelectedClass(e.target.value)}
-                    className="border border-gray-300 p-2 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
-                    required
-                  >
-                     <option value="">Sélectionner une classe</option>
-                  {classes.map(cls => (
-                    <option key={cls.id} value={cls.id}>
-                      {cls.niveau}
-                    </option>
-                  ))}
-                  </select>
+                  
+                   {/* Niveau Scolaire */}
+      <select
+        value={selectedNiveauScolaire}
+        onChange={(e) => setSelectedNiveauScolaire(e.target.value)}
+        className="border border-gray-300 p-2 mb-4 w-full rounded-lg"
+        required
+      >
+        <option value="">Sélectionner un niveau scolaire</option>
+        {niveauxScolaires.map(niveau => (
+          <option key={niveau.id} value={niveau.id}>
+            {niveau.nom}
+          </option>
+        ))}
+      </select>
 
+      {/* Niveau Classe */}
+      <select
+        value={selectedNiveauClasse}
+        onChange={(e) => setSelectedNiveauClasse(e.target.value)}
+        className="border border-gray-300 p-2 mb-4 w-full rounded-lg"
+        required
+      >
+        <option value="">Sélectionner un niveau de classe</option>
+        {niveauxClasses.map(niveau => (
+          <option key={niveau.id} value={niveau.id}>
+            {niveau.nom}
+          </option>
+        ))}
+      </select>
+
+      {/* Groupe */}
+      <select
+        value={selectedGroup}
+        onChange={(e) => setSelectedGroup(e.target.value)}
+        className="border border-gray-300 p-2 mb-4 w-full rounded-lg"
+        required
+      >
+        <option value="">Sélectionner un groupe</option>
+        {groups.map(group => (
+          <option key={group.id} value={group.id}>
+            {group.nom}
+          </option>
+        ))}
+      </select>
                    {/* Depart Select Field */}
       <select
         value={departStatus}
@@ -519,14 +617,16 @@ const formatDate = (date) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">École d'origine</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ecole</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Groupe</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-              {filteredImages.map(img => (
+              {currentClasses.map(img => (
                     <tr key={img.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{img.inscription}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{img.createdAt}</td>
@@ -536,7 +636,9 @@ const formatDate = (date) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{img.ecoleOrigine}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{img.genre}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{img.telephone}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getScolaireName(img.classId)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getClassName(img.classId)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{getGroupName(img.classId)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <img
                     src={img.url}
@@ -632,7 +734,7 @@ const formatDate = (date) => {
               <p><strong>Prénom:</strong> {selectedStudent.prenom}</p>
               <p><strong>École d'origine:</strong> {selectedStudent.ecoleOrigine}</p>
               <p><strong>N° Inscription:</strong> {selectedStudent.inscription}</p>
-              <p><strong>Classe:</strong> {getClassName(selectedStudent.classId)}</p>
+              <p><strong>Ecole:</strong> {getScolaireName(selectedStudent.classId)} {getClassName(selectedStudent.classId)} G({getGroupName(selectedStudent.classId)})</p>
             </div>
           </div>
 

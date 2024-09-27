@@ -110,7 +110,7 @@ export default function Sidebar() {
               <ul className="pl-4 mt-2 bg-[#0284c7] rounded-md">
                 <li className="mb-2">
                   <Link
-                    href="/classes"
+                    href="/classes/primaire"
                     className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
                   >
                     <span>Primaire</span>
@@ -118,7 +118,7 @@ export default function Sidebar() {
                 </li>
                 <li className="mb-2">
                   <Link
-                    href="/classes"
+                    href="/classes/college"
                     className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
                   >
                     <span>Collège</span>
@@ -126,7 +126,7 @@ export default function Sidebar() {
                 </li>
                 <li className="mb-2">
                   <Link
-                    href="/classes"
+                    href="/classes/lycee"
                     className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
                   >
                     <span>Lycée</span>
@@ -134,7 +134,7 @@ export default function Sidebar() {
                 </li>
                 <li className="mb-2">
                   <Link
-                    href="/classes"
+                    href="/classes/formation"
                     className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
                   >
                     <span>Formation</span>

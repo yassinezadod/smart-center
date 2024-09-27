@@ -188,7 +188,7 @@ export default function Dashboard() {
       {
         label: "Répartition des Genres",
         data: Object.keys(genderData).map(gender => (genderData[gender] / totalGenderCount * 100).toFixed(2)), // Pourcentage
-        backgroundColor: ["#FF69B4", "#1E90FF"],    //[fem, masc]
+        backgroundColor: ["#1E90FF", "#FF69B4"],    //[masc, fem]                     
         borderColor: ["rgba(75, 192, 192, 1)", "rgba(153, 102, 255, 1)"],
         borderWidth: 1,
       },
