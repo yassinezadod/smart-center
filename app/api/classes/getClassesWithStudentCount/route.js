@@ -1,25 +1,37 @@
-// api/classes/getClassesWithStudentCount.js
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export async function GET() {
   try {
+    // Get all classes with students
     const classes = await prisma.class.findMany({
       include: {
         students: true,
       },
     });
 
-    const classData = classes.map(cls => ({
-      id: cls.id,
-      niveau: cls.niveau,
-         // Compte uniquement les étudiants dont le champ "depart" est "Actif"
-      studentCount: cls.students.filter(student => student.depart === "Actif").length,
+    // Create an object to store the number of students for each 'niveauScolaire'
+    const studentCountByNiveau = {};
+
+    classes.forEach(cls => {
+      const activeStudents = cls.students.filter(student => student.depart === "Actif");
+      
+      // If the 'niveauScolaire' does not exist in the object, initialize it
+      if (!studentCountByNiveau[cls.niveauScolaire]) {
+        studentCountByNiveau[cls.niveauScolaire] = 0;
+      }
+
+      // Increment the count of active students for this 'niveauScolaire'
+      studentCountByNiveau[cls.niveauScolaire] += activeStudents.length;
+    });
+
+    const result = Object.keys(studentCountByNiveau).map(niveau => ({
+      niveau: niveau,
+      studentCount: studentCountByNiveau[niveau],
     }));
 
-    return new Response(JSON.stringify(classData), {
+    return new Response(JSON.stringify(result), {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {

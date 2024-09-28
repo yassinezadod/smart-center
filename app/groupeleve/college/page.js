@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Layout, Skeleton } from "antd";
-import Sidebar from '../components/Sidebar';
-import NavBar from "../components/NavBar";
+import Sidebar from '../../components/Sidebar';
+import NavBar from "../../components/NavBar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
@@ -26,7 +26,7 @@ export default function ClassesPage() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const response = await fetch('/api/classes/getclasses');
+        const response = await fetch('/api/classes/getclasses?niveauScolaire=College');
         if (!response.ok) {
           throw new Error('Erreur lors de la récupération des classes');
         }
@@ -65,7 +65,11 @@ export default function ClassesPage() {
 
   // Fonction pour générer le PDF
   const generatePDF = (files, classId) => {
-    const selectedClass = classes.find(cls => cls.id === classId)?.niveau || 'Classe inconnue'; // Obtenez le niveau de la classe
+    const selectedClass = classes.find(cls => cls.id === classId)?.niveauScolaire || 'Niveau inconnue'; // Obtenez le niveau de la classe
+    const selectedNiveau = classes.find(cls => cls.id === classId)?.niveauClasse || 'Classe inconnue';
+    const selectedGroup = classes.find(cls => cls.id === classId)?.group || 'Group inconnue';
+    
+    
     const doc = new jsPDF();
     
     // Logo
@@ -95,19 +99,23 @@ export default function ClassesPage() {
 
    // Définir les positions X pour les informations
    const infoY = 80; // Position verticale commune pour toutes les informations
+   const infoY1= 90;
    const infoX1 = 10; // Position X pour "Année scolaire"
    const infoX2 = 70; // Position X pour "Nom de l'école"
-   const infoX3 = 145; // Position X pour "Niveau de la classe"
+   const infoX3 = 120; // Position X pour "Niveau de la classe"
+   const infoX4=160;
   
     // Ajouter l'année scolaire
   doc.setFontSize(12);
-  doc.text(`Année scolaire : ${new Date().getFullYear()}`, infoX1, infoY);
+  doc.text(`Année scolaire : ${new Date().getFullYear()}/${new Date().getFullYear()+1}`, infoX1, infoY);
   
   // Ajouter le nom de l'école
-  doc.text('Nom de l\'école : Smart Center', infoX2, infoY);
+  doc.text('Ecole : Smart Center', infoX2, infoY);
   
   // Ajouter le niveau de la classe
-  doc.text(`Classe : ${selectedClass}`, infoX3, infoY);
+  doc.text(`Niveau : ${selectedClass}`, infoX3, infoY);
+  doc.text(`Classe : ${selectedNiveau} année`, infoX4, infoY);
+  doc.text(`Group : ${selectedGroup}`, infoX1, infoY1);
   
   // Ajouter le tableau des élèves
   const tableData = files.map(file => [file.inscription, file.nom, file.prenom]);
@@ -149,7 +157,7 @@ export default function ClassesPage() {
         <Content style={{ padding: '24px', minHeight: 'calc(100vh - 64px)' }}>
           <div className="flex-1 p-6 overflow-auto">
             <div className="container mx-auto">
-              <h1 className="text-3xl font-bold mb-4 text-gray-900">Affichage des Classes et Elèves</h1>
+              <h1 className="text-3xl font-bold mb-4 text-gray-900">Liste des groupes College</h1>
 
               {/* Classes Table */}
               <div className="overflow-x-auto bg-white shadow-md rounded-lg">
@@ -160,6 +168,7 @@ export default function ClassesPage() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Group</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Liste des élèves</th>
                       </tr>
                     </thead>
@@ -173,7 +182,8 @@ export default function ClassesPage() {
                       ) : (
                         currentClasses.map((cls) => (
                           <tr key={cls.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cls.niveau}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cls.niveauClasse}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cls.group}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               <button
                                 onClick={() => handleShowFiles(cls.id)}

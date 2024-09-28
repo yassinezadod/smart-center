@@ -15,7 +15,8 @@ export async function GET(request) {
   try {
     const student = await prisma.student.findMany({
       where: {
-        classId: classId
+        classId: classId,
+        depart: "Actif",
       },
     });
 
