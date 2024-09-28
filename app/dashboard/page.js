@@ -84,7 +84,7 @@ export default function Dashboard() {
       });
 
     // Récupérer le nombre de classes
-    axios.get("/api/classes/getclasses")
+    axios.get("/api/classes/getClassesWithStudentCount")
       .then((response) => {
         setClassesCount(response.data.length); // Met à jour le nombre de classes
       })

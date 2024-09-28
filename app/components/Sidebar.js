@@ -21,6 +21,7 @@ export default function Sidebar() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // Ajout de l'état de chargement
   const [isClassesOpen, setIsClassesOpen] = useState(false); // État pour gérer l'ouverture du sous-menu
+  const [isGroupOpen, setIsGroupOpen] = useState(false); // État pour gérer l'ouverture du sous-menu
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -58,6 +59,11 @@ export default function Sidebar() {
   const toggleClassesMenu = () => {
     setIsClassesOpen(prevState => !prevState); // Alterne l'état du sous-menu
   };
+
+  const toggleGroupNenu = () =>{
+    setIsGroupOpen(prevState => !prevState);
+  }
+
   return (
     <div className="flex">
       <aside className="bg-[#0ea5e9] h-screen text-white p-4 fixed top-0 left-0 overflow-y-auto">
@@ -154,15 +160,57 @@ export default function Sidebar() {
             </Link>
           </li>
 
-          <li className="mb-4">
-            <Link
-              href="/groupeleve"
-              className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
+          <li className="mb-4 relative">
+            <button
+              onClick={toggleGroupNenu}
+              className="flex items-center text-white hover:bg-sky-700 p-2 rounded w-full text-left"
             >
               <FaUsers className="text-xl mr-2" />
-              <span>Groupes d'élèves</span>
-            </Link>
+              <span>Groupes</span>
+              {isGroupOpen ? (
+                <FaChevronUp className="ml-auto" />
+              ) : (
+                <FaChevronDown className="ml-auto" />
+              )}
+            </button>
+            {isGroupOpen && (
+              <ul className="pl-4 mt-2 bg-[#0284c7] rounded-md">
+                <li className="mb-2">
+                  <Link
+                    href="/groupeleve/primaire"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Primaire</span>
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link
+                    href="/groupeleve/college"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Collège</span>
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link
+                    href="/groupeleve/lycee"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Lycée</span>
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link
+                    href="/groupeleve/formation"
+                    className="flex items-center text-white hover:bg-sky-800 p-2 rounded"
+                  >
+                    <span>Formation</span>
+                  </Link>
+                </li>
+              </ul>
+            )}
           </li>
+
          
           {!loading && user?.role === "SUPER_ADMIN" && ( // Afficher ce lien seulement après le chargement
           <li className="mb-4">

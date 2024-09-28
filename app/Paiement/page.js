@@ -84,51 +84,47 @@ export default function ClassesPage() {
     fetchStudents();
   }, []);
 
-// modifier le Paiement
   const handleUpdate = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Préparation des données
-  const payload = {
-    studentId: selectedClass.studentId,
-    amount: selectedClass.amount,
-    paymentDate: selectedClass.paymentDate,
-    septembre: selectedClass.septembre,
-    octobre: selectedClass.octobre,
-    novembre: selectedClass.novembre,
-    decembre: selectedClass.decembre,
-    janvier: selectedClass.janvier,
-    fevrier: selectedClass.fevrier,
-    mars: selectedClass.mars,
-    avril: selectedClass.avril,
-    mai: selectedClass.mai,
-    juin: selectedClass.juin,
-  };
+    const payload = {
+      studentId: formData.studentId,
+      amount: formData.amount,
+      paymentDate: new Date().toISOString().split('T')[0],
+      frais_ins: formData.frais_ins,
+      septembre: formData.septembre,
+      octobre: formData.octobre,
+      novembre: formData.novembre,
+      decembre: formData.decembre,
+      janvier: formData.janvier,
+      fevrier: formData.feveir,
+      mars: formData.mars,
+      avril: formData.avril,
+      mai: formData.mai,
+      juin: formData.juin,
+      juillet: formData.juillet,
+      aout: formData.aout,
+    };
 
-  try {
-    const response = await fetch(`/api/paiement/updatePaiement/${selectedClass.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      setPayments(payments.map(pay => pay.id === selectedClass.id ? data : pay));
+    try {
+      const response = await axios.put(`/api/paiement/updatePaiement/${selectedClass.id}`, payload);
+      const updatedPayment = response.data;
+      setPayments(payments.map(pay => (pay.id === selectedClass.id ? updatedPayment : pay)));
+      setFilteredPayments(filteredPayments.map(pay => (pay.id === selectedClass.id ? updatedPayment : pay)));
       setSelectedClass(null);
+      const updatedPayments = await axios.get('/api/paiement/getPaiements');
+      setPayments(updatedPayments.data);
+      setFilteredPayments(updatedPayments.data);
       setShowPopup(false);
-    } else {
-      console.error('Error:', data.error || 'Unknown error');
-      alert('Une erreur est survenue lors de la mise à jour.');
+      resetForm();
+          // Alerte de succès
+    alert('Mise à jour réussie !');
+
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour :', error);
+      setError('Une erreur est survenue lors de la mise à jour du paiement.');
     }
-  } catch (error) {
-    console.error('Network error:', error);
-    alert('Erreur de réseau : veuillez réessayer.');
-  }
-};
+  };
 
 
 
@@ -191,6 +187,8 @@ const handleDelete = async (id) => {
     setSearchTerm(e.target.value);
   };
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -198,35 +196,51 @@ const handleDelete = async (id) => {
       return;
     }
 
-    try {
-      await axios.post('/api/paiement/postPaiement', formData);
-      setShowPopup(false);
-      setFormData({
-        studentId: '',
-        amount: '',
-        paymentDate: new Date().toISOString().split('T')[0],
-        frais_ins: '',
-        septembre: 'PENDING',
-        octobre: 'PENDING',
-        novembre: 'PENDING',
-        decembre: 'PENDING',
-        janvier: 'PENDING',
-        fevrier: 'PENDING',
-        mars: 'PENDING',
-        avril: 'PENDING',
-        mai: 'PENDING',
-        juin: 'PENDING',
-        juillet: 'PENDING',
-        aout: 'PENDING',
-      });
-      // Refresh payments after adding
-      const updatedPayments = await axios.get('/api/paiement/getPaiements');
-      setPayments(updatedPayments.data);
-      setFilteredPayments(updatedPayments.data);
-    } catch (error) {
-      setError('Erreur lors de l\'ajout du paiement.');
+    if (selectedClass) {
+      await handleUpdate(e);
+    } else {
+      try {
+        await axios.post('/api/paiement/postPaiement', formData);
+        setShowPopup(false);
+        const updatedPayments = await axios.get('/api/paiement/getPaiements');
+        setPayments(updatedPayments.data);
+        setFilteredPayments(updatedPayments.data);
+        resetForm();
+      } catch (error) {
+        setError('Erreur lors de l\'ajout du paiement.');
+      }
     }
   };
+
+   // Réinitialiser le formulaire
+   const resetForm = () => {
+    setFormData({
+      studentId: '',
+      amount: '',
+      paymentDate: new Date().toISOString().split('T')[0],
+      frais_ins: '',
+      septembre: 'PENDING',
+      octobre: 'PENDING',
+      novembre: 'PENDING',
+      decembre: 'PENDING',
+      janvier: 'PENDING',
+      fevrier: 'PENDING',
+      mars: 'PENDING',
+      avril: 'PENDING',
+      mai: 'PENDING',
+      juin: 'PENDING',
+      juillet: 'PENDING',
+      aout: 'PENDING',
+    });
+  };
+
+  const getStudentDepart = (studentDepart) => {
+    if (studentDepart && studentDepart.includes('|')) {
+      return studentDepart.split('|')[1].trim();
+    }
+    return 'Inconnu'; // Ou une autre valeur par défaut appropriée
+  };
+  
 
   
   // Filtrer les paiements par mois et par statut
@@ -407,22 +421,24 @@ const handleDelete = async (id) => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.studentNom} {payment.studentPrenom}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.amount} DH</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(payment.studentCreatedAt).toLocaleDateString()}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {payment.studentDepart === 'Actif' ? (
           
-                          <div className="flex items-center justify-center w-full h-full">
-                          <span className="block w-3 h-3 bg-green-500 rounded-full"></span>
-                          </div>
-
-        ) : (
-          <div className="flex items-center space-x-2">
-            <span className="block w-3 h-3 bg-red-500 rounded-full"></span>
-            <span className="text-red-500">
-              {payment.studentDepart.split('|')[1].trim()}
-            </span>
+          <div className="flex items-center justify-center w-full h-full">
+          <span className="block w-3 h-3 bg-green-500 rounded-full"></span>
           </div>
-        )}
+
+) : (
+<div className="flex items-center space-x-2">
+<span className="block w-3 h-3 bg-red-500 rounded-full"></span>
+<span className="text-red-500">
+<td className="border px-4 py-2">{getStudentDepart(payment.studentDepart)}</td>
+</span>
+</div>
+)}
                         </td>
+
+                        
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.frais_ins} DH</td>    
                         {months.map(month => (
                           <td key={month} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -435,33 +451,30 @@ const handleDelete = async (id) => {
                           </td>
                         ))}
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <button
-  onClick={() => {
-    setSelectedClass(payment);
-    setFormData({
-      studentId: payment.studentId,
-      amount: payment.amount,
-      paymentDate: new Date().toISOString().split('T')[0], // Date au format YYYY-MM-DD
-      frais_ins: payment.frais_ins,
-      septembre: payment.septembre,
-      octobre: payment.octobre,
-      novembre: payment.novembre,
-      decembre: payment.decembre,
-      janvier: payment.janvier,
-      fevrier: payment.fevrier,
-      mars: payment.mars,
-      avril: payment.avril,
-      mai: payment.mai,
-      juin: payment.juin,
-      juillet: payment.juillet,
-      aout: payment.aout,
-    });
-    setShowPopup(true);
-  }}
-  className="bg-yellow-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-yellow-600"
->
-  <FaEdit />
-</button>
+                        <button onClick={() => {
+                            setSelectedClass(payment);
+                            setFormData({
+                              studentId: payment.studentId,
+                              amount: payment.amount,
+                              paymentDate: payment.paymentDate.slice(0, 10),
+                              frais_ins: payment.frais_ins,
+                              septembre: payment.septembre,
+                              octobre: payment.octobre,
+                              novembre: payment.novembre,
+                              decembre: payment.decembre,
+                              janvier: payment.janvier,
+                              fevrier: payment.fevrier,
+                              mars: payment.mars,
+                              avril: payment.avril,
+                              mai: payment.mai,
+                              juin: payment.juin,
+                              juillet: payment.juillet,
+                              aout: payment.aout,
+                            });
+                            setShowPopup(true);
+                          }}   className="bg-yellow-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-yellow-600">
+                          <FaEdit />
+                          </button>
 
                           <button
                              onClick={() => handleDelete(payment.id)}
