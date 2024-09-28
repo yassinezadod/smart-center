@@ -116,6 +116,7 @@ export default function ClassesPage() {
   doc.text(`Niveau : ${selectedClass}`, infoX3, infoY);
   doc.text(`Classe : ${selectedNiveau} année`, infoX4, infoY);
   doc.text(`Group : ${selectedGroup}`, infoX1, infoY1);
+  doc.text(`Nombre éléves : ${files.length}`, infoX2, infoY1);
   
   // Ajouter le tableau des élèves
   const tableData = files.map(file => [file.inscription, file.nom, file.prenom]);

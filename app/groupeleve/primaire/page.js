@@ -21,7 +21,6 @@ export default function ClassesPage() {
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [countEleve, setCountEleve] = useState([]);
   const itemsPerPage = 8;
 
   useEffect(() => {
@@ -51,7 +50,6 @@ export default function ClassesPage() {
       }
       const data = await response.json();
       setFiles(data);
-      setCountEleve(data.length);
     } catch (error) {
       console.error('Erreur lors de la récupération des fichiers:', error);
     } finally {
@@ -118,6 +116,7 @@ export default function ClassesPage() {
   doc.text(`Niveau : ${selectedClass}`, infoX3, infoY);
   doc.text(`Classe : ${selectedNiveau} année`, infoX4, infoY);
   doc.text(`Group : ${selectedGroup}`, infoX1, infoY1);
+  doc.text(`Nombre éléves : ${files.length}`, infoX2, infoY1); // le nombre des éléves pour chaque classe 
   
   // Ajouter le tableau des élèves
   const tableData = files.map(file => [file.inscription, file.nom, file.prenom]);
@@ -172,7 +171,6 @@ export default function ClassesPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Group</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Liste des élèves</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre des éléves</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -194,8 +192,6 @@ export default function ClassesPage() {
                               >
                                 Liste des élèves
                               </button>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{countEleve}</td>
-          
                             </td>
                           </tr>
                         ))
