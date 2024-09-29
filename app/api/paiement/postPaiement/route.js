@@ -51,5 +51,4 @@ export async function POST(req) {
   }
 }
 
-// Remplacer la configuration obsolète
-export const runtime = 'edge'; // ou 'nodejs' selon vos besoins
+

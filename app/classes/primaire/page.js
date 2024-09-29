@@ -5,7 +5,6 @@ import { Layout } from "antd";
 import Sidebar from '../../components/Sidebar';
 import NavBar from "../../components/NavBar";
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaTimes } from 'react-icons/fa';
 
 const { Content } = Layout;
