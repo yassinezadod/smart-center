@@ -51,8 +51,5 @@ export async function POST(req) {
   }
 }
 
-export const config = {
-  api: {
-    bodyParser: true, // Assurez-vous que le bodyParser est configuré
-  },
-};
+// Remplacer la configuration obsolète
+export const runtime = 'edge'; // ou 'nodejs' selon vos besoins
