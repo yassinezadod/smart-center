@@ -70,8 +70,8 @@ export async function PUT(req, { params }) {
 }
 
 // Config pour désactiver le body parser et gérer les fichiers
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
