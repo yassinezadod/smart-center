@@ -157,7 +157,7 @@ export default function Dashboard() {
 
   const cardData = [
     { title: "Utilisateurs", count: userCount },
-    { title: "Classes", count: classesCount },
+    { title: "Total Niveaux Éducation", count: classesCount },
     { title: "Eleves", count: studentCount },
     {
       title: "Paiements retardé",
@@ -188,7 +188,7 @@ export default function Dashboard() {
       {
         label: "Répartition des Genres",
         data: Object.keys(genderData).map(gender => (genderData[gender] / totalGenderCount * 100).toFixed(2)), // Pourcentage
-        backgroundColor: ["#1E90FF", "#FF69B4"],    //[masc, fem]                     
+        backgroundColor: ["#FF69B4   ", "#1E90FF"],    //#1E90FF[masc, fem] #FF69B4                   
         borderColor: ["rgba(75, 192, 192, 1)", "rgba(153, 102, 255, 1)"],
         borderWidth: 1,
       },

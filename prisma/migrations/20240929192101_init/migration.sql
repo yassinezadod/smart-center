@@ -25,6 +25,7 @@ CREATE TABLE `Student` (
     `telephone` VARCHAR(191) NOT NULL,
     `ecoleOrigine` VARCHAR(191) NOT NULL,
     `picture` VARCHAR(191) NULL,
+    `depart` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -34,7 +35,9 @@ CREATE TABLE `Student` (
 -- CreateTable
 CREATE TABLE `Class` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `niveau` VARCHAR(191) NOT NULL,
+    `niveauScolaire` ENUM('Primaire', 'College', 'Lycee', 'Formation') NOT NULL,
+    `niveauClasse` VARCHAR(191) NOT NULL,
+    `group` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -47,6 +50,7 @@ CREATE TABLE `Payment` (
     `studentId` INTEGER NOT NULL,
     `amount` DOUBLE NOT NULL,
     `paymentDate` DATETIME(3) NOT NULL,
+    `frais_ins` DOUBLE NOT NULL,
     `septembre` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
     `octobre` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
     `novembre` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
@@ -57,6 +61,8 @@ CREATE TABLE `Payment` (
     `avril` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
     `mai` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
     `juin` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `juillet` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
+    `aout` ENUM('PAID', 'UNPAID', 'PENDING') NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
