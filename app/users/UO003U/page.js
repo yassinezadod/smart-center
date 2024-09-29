@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { FaEye, FaEyeSlash, FaTrash, FaEdit } from 'react-icons/fa';
 import { Layout} from "antd";
-import Sidebar from "../components/Sidebar";
-import NavBar from "../components/NavBar";
+import Sidebar from "../../components/Sidebar";
+import NavBar from "../../components/NavBar";
 import { FaTimes } from 'react-icons/fa';
 
 
@@ -205,10 +205,25 @@ export default function UsersPage() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute inset-y-0 right-0 flex items-center px-2"
+                          className="absolute inset-y-0 right-6 flex items-center px-2"
                         >
                           {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </button>
+                        <button
+          type="button"
+          onClick={() => {
+      if (selectedUser) {
+        setSelectedUser({ ...selectedUser, password: "" });
+      } else {
+        setNewUser({ ...newUser, password: "" });
+      }
+    }}
+          className="absolute inset-y-0 right-0 flex items-center px-2"
+        >
+          <FaTimes className="text-blue-800" />
+        </button>
+      
+      
                       </div>
                       <div className="flex justify-between">
                         <button

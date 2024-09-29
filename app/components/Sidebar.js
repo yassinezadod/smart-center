@@ -89,7 +89,7 @@ export default function Sidebar() {
           {!loading && user?.role === "SUPER_ADMIN" && ( // Afficher ce lien seulement après le chargement
             <li className="mb-4">
               <Link
-                href="/users"
+                href="/users/UO003U"
                 className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
               >
 
@@ -215,7 +215,7 @@ export default function Sidebar() {
           {!loading && user?.role === "SUPER_ADMIN" && ( // Afficher ce lien seulement après le chargement
           <li className="mb-4">
             <Link
-              href="/Paiement"
+              href="/Paiement/PO0653P"
               className="flex items-center text-white hover:bg-sky-700 p-2 rounded"
             >
               <FaMoneyBillWave className="text-xl mr-2" />
