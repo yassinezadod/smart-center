@@ -63,9 +63,9 @@ export async function POST(req) {
   }
   
   // Config pour désactiver le body parser et gérer les fichiers
-  export const config = {
-    api: {
-      bodyParser: false,
-    },
-  };
+  // export const config = {
+  //   api: {
+  //     bodyParser: false,
+  //   },
+  // };
   
