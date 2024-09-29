@@ -23,8 +23,6 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
-  classes   Class[]  @relation("UserClasses")
 }
 
 enum Role {
@@ -37,12 +35,13 @@ model Student {
   nom           String
   prenom        String
   birthDate     DateTime
+  genre         String
   classId       Int
   inscription   String
   telephone     String
   ecoleOrigine  String
-  acteNaissance Boolean
-  picture       String
+  picture       String?
+  depart        String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -53,30 +52,50 @@ model Student {
 
 model Class {
   id        Int       @id @default(autoincrement())
-  niveau    String
+  niveauScolaire  NiveauScolaire
+  niveauClasse    String    // Exemple: 1er, 2eme, etc.
+  group           String    // Exemple: A, B, etc.
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   // Relations
   students  Student[]
-  users     User[]    @relation("UserClasses")
+ 
 }
 
+enum NiveauScolaire {
+  Primaire
+  College
+  Lycee
+  Formation
+}
 model Payment {
   id          Int      @id @default(autoincrement())
   studentId   Int
   amount      Float
-  paymentDate DateTime
-  period      String
-  status      PaymentStatus
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  paymentDate DateTime 
+  frais_ins   Float
+  septembre   PaymentStatus
+  octobre     PaymentStatus
+  novembre    PaymentStatus
+  decembre    PaymentStatus
+  janvier     PaymentStatus
+  fevrier     PaymentStatus
+  mars        PaymentStatus
+  avril       PaymentStatus
+  mai         PaymentStatus
+  juin        PaymentStatus
+  juillet     PaymentStatus
+  aout        PaymentStatus
+
 
   // Relations
   student     Student  @relation(fields: [studentId], references: [id])
 }
 
+
 enum PaymentStatus {
-  PAID
-  UNPAID
+  PAID       // Payé
+  UNPAID     // Non payé
+  PENDING    // En attente
 }

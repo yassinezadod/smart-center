@@ -23,8 +23,8 @@ export default function LoginPage() {
       localStorage.setItem('token', response.data.token); // Considère utiliser un context ou une autre méthode de gestion d'état
       router.push('/dashboard');
     } catch (error) {
-      setError('Login failed. Please check your email and password.');
-      console.error('Login failed', error);
+      setError('Connexion échouée. Veuillez vérifier votre email et votre mot de passe.');
+      console.error('Connexion échouée', error);
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ export default function LoginPage() {
             className="mx-auto h-40 w-auto"
           />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Sign in to your account
+          Connectez-vous à votre compte
           </h2>
         </div>
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
             {error && <p style={{ textAlign: 'center' }} className="text-red-500 mb-4">{error}</p>}
             <div>
               <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
+              Adresse email
               </label>
               <div className="mt-2">
                 <input
@@ -67,11 +67,11 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Password
+                  Mot de passe
                 </label>
                 <div className="text-sm">
                   <a href="#" className="font-semibold text-blue-600 hover:text-indigo-500">
-                    Forgot password?
+                    Mot de passe oublier?
                   </a>
                 </div>
               </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? 'Connexion...' : 'Se connecter'}
               </button>
             </div>
           </form>
