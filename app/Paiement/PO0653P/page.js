@@ -5,7 +5,7 @@ import axios from 'axios'; // Ajout d'importation d'axios
 import {FaTrash, FaEdit } from 'react-icons/fa';
 import { Layout } from "antd";
 import Sidebar from '../../components/Sidebar';
-import NavBar from "../components/NavBar";
+import NavBar from "./Navbar";
 import { FaTimes } from 'react-icons/fa';
 import clsx from 'clsx'; // Ajout d'importation de clsx
 
