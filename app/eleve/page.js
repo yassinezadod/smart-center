@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FaEye, FaEyeSlash, FaTrash, FaEdit } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
-import NavBar from "../components/NavBar";
+import NavBar from "../components/Navbar";
 import { Layout} from "antd";
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';

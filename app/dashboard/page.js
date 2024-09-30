@@ -17,7 +17,8 @@ import {
   ArcElement
 } from "chart.js";
 import Sidebar from "../components/Sidebar";
-import NavBar from "../components/NavBar";
+import NavBar from "../components/Navbar";
+
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 

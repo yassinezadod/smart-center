@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Layout } from "antd";
 import Sidebar from '../../components/Sidebar';
-import NavBar from "./NavBar";
+import NavBar from "./Navbar";
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { FaTimes } from 'react-icons/fa';
 

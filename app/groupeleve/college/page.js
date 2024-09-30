@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Layout, Skeleton } from "antd";
 import Sidebar from '../../components/Sidebar';
-import NavBar from "../../components/NavBar";
+import NavBar from "../../components/Navbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
@@ -176,7 +176,7 @@ export default function ClassesPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {currentClasses.length === 0 ? (
                         <tr>
-                          <td colSpan="2" className="px-6 py-4 text-center text-sm font-medium text-gray-900">
+                          <td colSpan="2" className="px-6 py-4 text-center text-gray-500">
                             Aucune classe trouvée
                           </td>
                         </tr>
