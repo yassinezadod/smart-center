@@ -95,7 +95,7 @@ export default function Dashboard() {
       });
 
     // Récupérer le nombre d'étudiants
-    axios.get("/api/student/getStudent")
+    axios.get("/api/getEleve")
       .then((response) => {
         const activeStudents = response.data.filter(student => student.depart === "Actif");
         setStudentCount(activeStudents.length); // Met à jour le nombre d'étudiants

@@ -52,7 +52,7 @@ export default function ClassesPage() {
 
   const fetchImages = async () => {
   try {
-    const response = await fetch('/api/student/getStudent');
+    const response = await fetch('/api/getEleve');
     if (!response.ok) {
       throw new Error('Erreur lors de la récupération des élèves');
     }

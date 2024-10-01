@@ -73,7 +73,7 @@ export default function ClassesPage() {
 
     const fetchStudents = async () => {
       try {
-        const response = await axios.get('/api/student/getStudent');
+        const response = await axios.get('/api/getEleve');
         setStudents(response.data);
       } catch (err) {
         setError('Erreur lors de la récupération des étudiants.');
