@@ -197,7 +197,7 @@ useEffect(() => {
       formData.append('classId', selectedClass.id);
       formData.append('depart', departValue);  // Append depart with departure date if applicable
 
-      const url = isEditing ? `/api/student/putStudent/${currentImageId}` : '/api/student/postStudent';
+      const url = isEditing ? `/api/student/putStudent/${currentImageId}` : '/api/student/poststudent';
       const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
